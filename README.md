@@ -1,5 +1,6 @@
 # gmCStrike-1.6
 The rebuild of "Schwarz's CS 1.6 SWEPs" with better code and weapon behavior. Now it looks like CS 1.6 instead of piece of shit.
+**CURRENTLY IS IN ALPHA DEVELOPMENT STATE**
 
 ## Features
 - Based on CS 1.6 source code.
