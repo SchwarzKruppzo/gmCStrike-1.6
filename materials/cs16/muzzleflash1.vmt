@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "cs16/muzzleflash1"
+	"$additive" "1"
+	"$vertexcolors" "1"
+	"$vertexalpha" "1"
+}
