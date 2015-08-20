@@ -79,6 +79,9 @@ function SWEP:SetupDataTables()
 	self:NetworkVar( "Int", 15, "m_iSwing" )
 	self:NetworkVar( "Float", 16, "m_flPumpTime" )
 	self:NetworkVar( "Float", 17, "_nextFire" )
+	self:NetworkVar( "Int", 18, "m_iFamasShotsFired" )
+	self:NetworkVar( "Float", 19, "m_flFamasShoot" )
+	self:NetworkVar( "Float", 20, "m_flBurstSpread" )
 end
 
 
@@ -161,8 +164,16 @@ function SWEP:RecalculateAccuracy()
 end
 
 function SWEP:Think()
-	if self:Getm_flGlock18Shoot() != 0 then
-		self:FireRemaining( self:Getm_iGlock18ShotsFired(), self:Getm_flGlock18Shoot(), true )
+	if IsFirstTimePredicted() then
+		if self:GetClass() == CS16_WEAPON_GLOCK18 then
+			if self:Getm_flGlock18Shoot() != 0 then
+				self:FireRemaining( self:Getm_iGlock18ShotsFired(), self:Getm_flGlock18Shoot(), true )
+			end
+		elseif self:GetClass() == CS16_WEAPON_FAMAS then
+			if self:Getm_flFamasShoot() != 0 then
+				self:FireRemaining( self:Getm_iFamasShotsFired(), self:Getm_flFamasShoot(), true )
+			end
+		end
 	end
 	if self:Getm_bInReload() and self:GetNextPrimaryFire() <= CurTime() then
 		local j = math.min( self.Primary.ClipSize - self:Clip1(), self.Owner:GetAmmoCount( self.Primary.Ammo ) )
@@ -202,7 +213,7 @@ function SWEP:Think()
 			self:Setm_iShotsFired( 0 )
 		end
 
-		if self:Clip1() == 0 and self.Owner:GetAmmoCount( self.Primary.Ammo ) > 0 and !self:Getm_bInReload() and self:GetNextPrimaryFire() > CurTime() then 
+		if self:Clip1() == 0 and self.Owner:GetAmmoCount( self.Primary.Ammo ) > 0 and !self:Getm_bInReload() and self:GetNextPrimaryFire() > CurTime() and CurTime() > self:Getm_flFamasShoot() then 
 			self:Reload()
 		end
 	end
