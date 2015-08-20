@@ -124,6 +124,19 @@ function SWEP:CalcView( ply, pos, ang, fov )
 		ang[3] = ang[3] + ply:CS16_GetViewPunch()[3]
 	end
 
+	if self:GetIsInScope() then
+		fov = 45.83
+	end
+	if self:GetScopeZoom() == 1 then
+		fov = 33.3
+	elseif self:GetScopeZoom() == 2 then
+		if self:GetClass() == CS16_WEAPON_AWP then
+			fov = 10
+		elseif self:GetClass() == CS16_WEAPON_SCOUT then
+			fov = 12.5
+		end
+	end
+
 	return pos, ang, fov
 end
 
