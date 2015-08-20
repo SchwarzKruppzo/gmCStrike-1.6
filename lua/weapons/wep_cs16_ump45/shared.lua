@@ -3,7 +3,7 @@ if SERVER then
 end
 
 if CLIENT then
-    SWEP.PrintName = "UMP-45"
+    SWEP.PrintName = "KM UMP45"
     SWEP.Slot = 0
     SWEP.SlotPos = 8
 	SWEP.DrawAmmo = false

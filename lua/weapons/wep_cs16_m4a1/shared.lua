@@ -3,7 +3,7 @@ if SERVER then
 end
 
 if CLIENT then
-    SWEP.PrintName = "M4A1"
+    SWEP.PrintName = "Maverick M4A1 Carbine"
     SWEP.Slot = 0
     SWEP.SlotPos = 6
 	SWEP.DrawAmmo = false
@@ -32,12 +32,7 @@ SWEP.Primary.ClipSize		= CS16_M4A1_MAX_CLIP
 SWEP.Primary.DefaultClip	= CS16_M4A1_MAX_CLIP
 SWEP.Primary.Ammo			= "CS16_556NATO"
 
-SWEP.InReload				= false
-SWEP.TimeWeaponIdle			= 0
-SWEP.Accuracy				= 0.2
 SWEP.MaxSpeed 				= 250
-SWEP.DelayFire				= false
-SWEP.ShotsFired				= 0
 
 SWEP.Sounds = {} 
 SWEP.Sounds["draw"] = {

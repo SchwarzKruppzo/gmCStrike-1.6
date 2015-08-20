@@ -3,7 +3,7 @@ if SERVER then
 end
 
 if CLIENT then
-    SWEP.PrintName = "Galil"
+    SWEP.PrintName = "IDF Defender"
     SWEP.Slot = 0
     SWEP.SlotPos = 17
 	SWEP.DrawAmmo = false
