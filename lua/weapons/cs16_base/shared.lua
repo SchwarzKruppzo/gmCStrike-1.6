@@ -82,6 +82,10 @@ function SWEP:SetupDataTables()
 	self:NetworkVar( "Int", 18, "m_iFamasShotsFired" )
 	self:NetworkVar( "Float", 19, "m_flFamasShoot" )
 	self:NetworkVar( "Float", 20, "m_flBurstSpread" )
+	self:NetworkVar( "Bool", 21, "IsInScope" )
+	self:NetworkVar( "Int", 22, "ScopeZoom" )
+	self:NetworkVar( "Int", 23, "LastScopeZoom" )
+	self:NetworkVar( "Bool", 24, "ResumeZoom" )
 end
 
 
@@ -164,6 +168,12 @@ function SWEP:RecalculateAccuracy()
 end
 
 function SWEP:Think()
+	if self:GetNextPrimaryFire() <= CurTime() and self:GetResumeZoom() == true then
+		self:SetScopeZoom( self:GetLastScopeZoom() )
+		if self:GetScopeZoom() == self:GetLastScopeZoom() then
+			self:SetResumeZoom( false )
+		end
+	end
 	if IsFirstTimePredicted() then
 		if self:GetClass() == CS16_WEAPON_GLOCK18 then
 			if self:Getm_flGlock18Shoot() != 0 then
@@ -218,7 +228,11 @@ function SWEP:Think()
 		end
 	end
 	if self:Getm_flEjectBrass() != 0 and CurTime() >= self:Getm_flEjectBrass() then
-		self:CreateShell( "shotgunshell", "1" )
+		if self:IsSniperRifle() then
+			self:CreateShell( "rshell", "1" )
+		else
+			self:CreateShell( "shotgunshell", "1" )
+		end
 		self:Setm_flEjectBrass( 0 )
 	end
 	if IsFirstTimePredicted() then
