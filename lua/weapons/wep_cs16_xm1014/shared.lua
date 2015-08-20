@@ -3,7 +3,7 @@ if SERVER then
 end
 
 if CLIENT then
-    SWEP.PrintName = "XM1014"
+    SWEP.PrintName = "Leone YG1265 Auto Shotgun"
     SWEP.Slot = 0
     SWEP.SlotPos = 12
 	SWEP.DrawAmmo = false
@@ -68,7 +68,7 @@ function SWEP:Deploy()
 	self.MaxSpeed = CS16_M3_MAX_SPEED
 
 	if not self.FirstDeploy then
-		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
+		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -139,7 +139,9 @@ function SWEP:PrimaryAttack()
 		return
 	end
 
-	self:FireAnimation()
+	self:Setm_bDelayFire( true )
+	self:Setm_iShotsFired( self:Getm_iShotsFired() + 6 )
+	if SERVER then self:FireAnimation() end
 
 	self:TakePrimaryAmmo( 1 )
 
