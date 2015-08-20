@@ -49,7 +49,6 @@ SWEP.Anims.Idle = "idle1"
 SWEP.Anims.Draw = "draw"
 SWEP.Anims.Reload = "reload"
 SWEP.Anims.Shoot = { "shoot1", "shoot2", "shoot3" }
-SWEP.Anims.ShootEmpty = { "shoot1", "shoot2", "shoot3" }
 
 SWEP.FireSound = Sound("OldMP5.Shot1")
 
@@ -100,9 +99,7 @@ function SWEP:PrimaryAttack()
 end
 
 function SWEP:FireAnimation()
-	local anim = self:Clip1() == 1 and self.Anims.ShootEmpty or self.Anims.Shoot
-
-	CS16_SendWeaponAnim( self, anim, 1 )
+	CS16_SendWeaponAnim( self, self.Anims.Shoot, 1 )
 end
 
 function SWEP:RecalculateAccuracy()
