@@ -138,7 +138,24 @@ end
 shellDir["wep_cs16_elite_right"] = function( attach )
 	return attach.Ang:Forward() * math.Rand( 1, 3 ) + EyeAngles():Up() * math.Rand( 1.7, 3.5 ) + EyeAngles():Forward() * math.Rand( 1.5, 2.5 )
 end
-
+shellDir["wep_cs16_m4a1"] = function( attach )
+	return -attach.Ang:Forward() * math.Rand( 1.5, 2 ) + EyeAngles():Up() * math.Rand( 1, 2.5 ) + EyeAngles():Forward() * math.Rand( 2.5, 4 )
+end
+shellDir["wep_cs16_famas"] = function( attach )
+	return attach.Ang:Forward() * math.Rand( 2, 4 ) + EyeAngles():Up() * math.Rand( 1, 2 ) + EyeAngles():Forward() * math.Rand( 2.8, 3 )
+end
+shellDir["wep_cs16_aug"] = function( attach )
+	return attach.Ang:Forward() * math.Rand( 2, 3.5 ) + EyeAngles():Up() * math.Rand( 1, 4 ) + EyeAngles():Forward() * math.Rand( 2, 3.5 )
+end
+shellDir["wep_cs16_sg552"] = function( attach )
+	return -attach.Ang:Forward() * math.Rand( 2, 3 ) + EyeAngles():Up() * math.Rand( 2, 4 ) + EyeAngles():Forward() * math.Rand( 1, 2 )
+end
+shellDir["wep_cs16_scout"] = function( attach )
+	return -attach.Ang:Forward() + EyeAngles():Up() - EyeAngles():Right() + EyeAngles():Forward() * math.Rand( 1, 2 )
+end
+shellDir["wep_cs16_awp"] = function( attach )
+	return -attach.Ang:Forward() + EyeAngles():Up() - EyeAngles():Right() + EyeAngles():Forward() * math.Rand( 1, 2 )
+end
 
 function SWEP:CreateShell( shell, attachment )
 	if (SERVER and !CLIENT) or (SERVER and game.SinglePlayer()) then
@@ -149,7 +166,9 @@ function SWEP:CreateShell( shell, attachment )
 		umsg.End()
 		return
 	elseif CLIENT then
-		if !IsFirstTimePredicted() then return end
+		if !game.SinglePlayer() then
+			if !IsFirstTimePredicted() then return end
+		end
 		if self.Owner:ShouldDrawLocalPlayer() then
 			return
 		end
@@ -175,7 +194,7 @@ function SWEP:CreateShell( shell, attachment )
 					dir = shellDir["wep_cs16_elite_right"]( attach )
 				end
 			end
-			CS16_SpawnVShell( CS16_Shells[shell].model, CS16_Shells[shell].sound, attach.Pos, EyeAngles(), dir * 35, 0.6, 5, angvel )
+			CS16_SpawnVShell( CS16_Shells[shell].model, CS16_Shells[shell].sound, attach.Pos + dir/2, EyeAngles(), dir * 35, 0.6, 5, angvel )
 		end
 		return
 	end
