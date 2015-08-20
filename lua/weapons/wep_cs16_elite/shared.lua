@@ -3,7 +3,7 @@ if SERVER then
 end
 
 if CLIENT then
-    SWEP.PrintName = "Dual Elites"
+    SWEP.PrintName = ".40 Dual Elites"
     SWEP.Slot = 1
     SWEP.SlotPos = 3
 	SWEP.DrawAmmo = false
@@ -162,7 +162,7 @@ function SWEP:ELITEFire( flSpread, flCycleTime )
 
 		self:SetLeftMode( false )
 
-		self.Owner:FireBullets3( self.Owner:GetShootPos() + self.Owner:GetRight() * 5, self.Owner:EyeAngles() + 2.0 * self.Owner:CS16_GetViewPunch(), flSpread, CS16_ELITE_DISTANCE, CS16_ELITE_PENETRATION, "CS16_9MM", CS16_ELITE_DAMAGE, CS16_ELITE_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
+		self.Owner:FireBullets3( self.Owner:GetShootPos() + self.Owner:GetRight() * 5, self.Owner:EyeAngles() + self.Owner:CS16_GetViewPunch(), flSpread, CS16_ELITE_DISTANCE, CS16_ELITE_PENETRATION, "CS16_9MM", CS16_ELITE_DAMAGE, CS16_ELITE_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
 		self:CreateShell( "pshell", "2" )
 	else
 		osmes.SpawnEffect( self.Owner, "muzzleflash2", self, { DrawViewModel = true, CustomSizeVM = 10, atID = "1" } )
@@ -173,7 +173,7 @@ function SWEP:ELITEFire( flSpread, flCycleTime )
 
 		self:SetLeftMode( true )
 
-		self.Owner:FireBullets3( self.Owner:GetShootPos() - self.Owner:GetRight() * 5, self.Owner:EyeAngles() + 2.0 * self.Owner:CS16_GetViewPunch(), flSpread, CS16_ELITE_DISTANCE, CS16_ELITE_PENETRATION, "CS16_9MM", CS16_ELITE_DAMAGE, CS16_ELITE_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
+		self.Owner:FireBullets3( self.Owner:GetShootPos() - self.Owner:GetRight() * 5, self.Owner:EyeAngles() + self.Owner:CS16_GetViewPunch(), flSpread, CS16_ELITE_DISTANCE, CS16_ELITE_PENETRATION, "CS16_9MM", CS16_ELITE_DAMAGE, CS16_ELITE_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
 		self:CreateShell( "pshell", "3" )
 	end
 	

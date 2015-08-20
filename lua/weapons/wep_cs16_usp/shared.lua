@@ -3,7 +3,7 @@ if SERVER then
 end
 
 if CLIENT then
-    SWEP.PrintName = "USP"
+    SWEP.PrintName = "KM .45 Tactical"
     SWEP.Slot = 1
     SWEP.SlotPos = 4
 	SWEP.DrawAmmo = false
@@ -208,7 +208,7 @@ function SWEP:USPFire( flSpread, flCycleTime )
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )
 
-	self.Owner:FireBullets3( self.Owner:GetShootPos(), self.Owner:EyeAngles() + 2.0 * self.Owner:CS16_GetViewPunch(), flSpread, CS16_USP_DISTANCE, CS16_USP_PENETRATION, "CS16_45ACP", CS16_USP_DAMAGE, CS16_USP_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
+	self.Owner:FireBullets3( self.Owner:GetShootPos(), self.Owner:EyeAngles() + self.Owner:CS16_GetViewPunch(), flSpread, CS16_USP_DISTANCE, CS16_USP_PENETRATION, "CS16_45ACP", CS16_USP_DAMAGE, CS16_USP_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
 
 	local sound = self:GetSilenced() and self.FireSoundSilenced or self.FireSound
 	self:EmitSound( sound )

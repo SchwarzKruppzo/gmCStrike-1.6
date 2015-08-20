@@ -3,7 +3,7 @@ if SERVER then
 end
 
 if CLIENT then
-    SWEP.PrintName = "Glock-18"
+    SWEP.PrintName = "9x19mm Sidearm"
     SWEP.Slot = 1
     SWEP.SlotPos = 3
 	SWEP.DrawAmmo = false
@@ -231,7 +231,7 @@ function SWEP:GLOCK18Fire( flSpread, flCycleTime )
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )
 
-	self.Owner:FireBullets3( self.Owner:GetShootPos(), self.Owner:EyeAngles() + 2.0 * self.Owner:CS16_GetViewPunch(), flSpread, CS16_GLOCK18_DISTANCE, CS16_GLOCK18_PENETRATION, "CS16_9MM", CS16_GLOCK18_DAMAGE, CS16_GLOCK18_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
+	self.Owner:FireBullets3( self.Owner:GetShootPos(), self.Owner:EyeAngles() + self.Owner:CS16_GetViewPunch(), flSpread, CS16_GLOCK18_DISTANCE, CS16_GLOCK18_PENETRATION, "CS16_9MM", CS16_GLOCK18_DAMAGE, CS16_GLOCK18_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
 
 	self:EmitSound( self.FireSound )
 

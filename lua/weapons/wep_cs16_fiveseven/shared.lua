@@ -3,7 +3,7 @@ if SERVER then
 end
 
 if CLIENT then
-    SWEP.PrintName = "Fiveseven"
+    SWEP.PrintName = "ES Five-Seven"
     SWEP.Slot = 1
     SWEP.SlotPos = 6
 	SWEP.DrawAmmo = false
@@ -145,7 +145,7 @@ function SWEP:FiveSevenFire( flSpread, flCycleTime )
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )
 
-	self.Owner:FireBullets3( self.Owner:GetShootPos(), self.Owner:EyeAngles() + 2.0 * self.Owner:CS16_GetViewPunch(), flSpread, CS16_FIVESEVEN_DISTANCE, CS16_FIVESEVEN_PENETRATION, "CS16_57MM", CS16_FIVESEVEN_DAMAGE, CS16_FIVESEVEN_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
+	self.Owner:FireBullets3( self.Owner:GetShootPos(), self.Owner:EyeAngles() + self.Owner:CS16_GetViewPunch(), flSpread, CS16_FIVESEVEN_DISTANCE, CS16_FIVESEVEN_PENETRATION, "CS16_57MM", CS16_FIVESEVEN_DAMAGE, CS16_FIVESEVEN_RANGE_MODIFER, self.Owner, true, self.Owner:EntIndex() )
 
 	self:EmitSound( self.FireSound )
 
