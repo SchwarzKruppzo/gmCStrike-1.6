@@ -53,7 +53,6 @@ SWEP.Anims.Reload = "insert"
 SWEP.Anims.ReloadStart = "start_reload"
 SWEP.Anims.ReloadEnd = "after_reload"
 SWEP.Anims.Shoot = { "shoot1", "shoot2" }
-SWEP.Anims.ShootEmpty = { "shoot1", "shoot2" }
 
 SWEP.FireSound = Sound("OldXM1014.Shot1")
 
@@ -117,9 +116,7 @@ function SWEP:Reload()
 end
 
 function SWEP:FireAnimation()
-	local anim = self:Clip1() == 1 and self.Anims.ShootEmpty or self.Anims.Shoot
-
-	CS16_SendWeaponAnim( self, anim, 1 )
+	CS16_SendWeaponAnim( self, self.Anims.Shoot, 1 )
 end
 
 function SWEP:PrimaryAttack()
