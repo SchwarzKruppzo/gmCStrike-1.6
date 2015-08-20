@@ -162,6 +162,12 @@ if CLIENT then
 		if !LP:Alive() then return end
 		if !weapon then return end
 		if !weapon.IsCS16 then return end
+		if weapon.IsSniperRifle and weapon:IsSniperRifle() then 
+			if weapon:GetScopeZoom() != 0 then
+				DrawScope() 
+			end
+			return 
+		end
 
 		local cl_dynamiccrosshair = GetConVar("cl_cs16_dynamiccrosshair"):GetInt()
 		local g_iShotsFired = weapon:Getm_iShotsFired() or 0
@@ -258,6 +264,45 @@ if CLIENT then
 		surface.DrawRect( ( ScreenWidth / 2 ) + flCrosshairDistance, ScreenHeight / 2, iBarSize, 1 )
 		surface.DrawRect( ScreenWidth / 2, (ScreenHeight / 2) - flCrosshairDistance - iBarSize + 1, 1, iBarSize )
 		surface.DrawRect( ScreenWidth / 2, (ScreenHeight / 2) + flCrosshairDistance, 1, iBarSize )
+	end
+
+	local scope = Material("cs16/sniper_scope.png","unlitgeneric alphatest")
+	local scope_arc = Material("cs16/scope_arc.png","unlitgeneric alphatest")
+	local scope_arc_ne = Material("cs16/scope_arc_ne.png","unlitgeneric alphatest")
+	local scope_arc_nw = Material("cs16/scope_arc_nw.png","unlitgeneric alphatest")
+	local scope_arc_sw = Material("cs16/scope_arc_sw.png","unlitgeneric alphatest")
+	function DrawScope()
+		local size = 256
+
+		surface.SetDrawColor( Color( 255, 255, 255, 255 ) )
+
+		surface.SetMaterial( scope )
+		surface.DrawTexturedRect( ScrW() / 2 - size / 2, ScrH() / 2 - size / 2, size, size )
+
+		local size = ScreenScale( 128 + 32 )
+		local offset = 6
+		surface.SetMaterial( scope_arc )
+		surface.DrawTexturedRect( ScrW() / 2 - offset, ScrH() / 2 - offset, size, size )
+		
+		surface.SetMaterial( scope_arc_ne )
+		surface.DrawTexturedRect( ScrW() / 2 - offset, ScrH() / 2 - size + offset, size, size )
+
+		surface.SetMaterial( scope_arc_nw )
+		surface.DrawTexturedRect( ScrW() / 2 - size + offset, ScrH() / 2 - size + offset, size, size )
+
+		surface.SetMaterial( scope_arc_sw )
+		surface.DrawTexturedRect( ScrW() / 2 - size + offset, ScrH() / 2 - offset, size, size )
+
+		surface.SetDrawColor( Color( 0, 0, 0, 255 ) )
+		surface.DrawLine( 0, ScrH() / 2 + 1, ScrW() / 2.1, ScrH()/2 + 1 )
+		surface.DrawLine( ScrW() / 1.9, ScrH() / 2 + 1, ScrW(), ScrH()/2 + 1 )
+		surface.DrawLine( ScrW() / 2 - 1, 0, ScrW() / 2 - 1, ScrH() / 2.1 )
+		surface.DrawLine( ScrW() / 2 - 1, ScrH() / 1.9, ScrW() / 2 - 1, ScrH() )
+
+		surface.DrawRect( ScrW() / 2 + size - offset, 0, ScrW() / 2 - size + offset, ScrH() )
+		surface.DrawRect( 0 , 0, ScrW()/2 - size + offset, ScrH() )
+		surface.DrawRect( ScrW() / 2 - size + offset, 0, ScrW() / 2 - offset + size, ScrH() / 2 + offset - size )
+		surface.DrawRect( ScrW() / 2 - size + offset, ScrH() / 2 + size - offset, ScrW() / 2 - offset + size, ScrH() / 2 + offset - size )
 	end
 
 	hook.Add( "HUDPaint", "gmCStrike", function()
