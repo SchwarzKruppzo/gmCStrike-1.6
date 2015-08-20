@@ -190,7 +190,7 @@ function SWEP:M4A1Fire( flSpread, flCycleTime )
 
 	local attachment = self:GetSilenced() and "0" or "2"
 	local muzzle = self:GetSilenced() and "muzzleflash2" or "muzzleflash3"
-	local muzzle_size = self:GetSilenced() and 10 or 16
+	local muzzle_size = self:GetSilenced() and 10 or 18
 	osmes.SpawnEffect( self.Owner, muzzle, self, { DrawViewModel = true, atID = attachment, CustomSizeVM = muzzle_size } )
 	// worldmodel osmes.SpawnEffect( nil, "muzzleflash3", self, { DrawWorldModel = true } )
 
