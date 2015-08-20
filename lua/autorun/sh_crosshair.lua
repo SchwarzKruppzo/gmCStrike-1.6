@@ -168,6 +168,9 @@ if CLIENT then
 		if weapon:GetClass() == CS16_WEAPON_GLOCK18 and weapon:GetBurstMode() then
 			g_iShotsFired = weapon:Getm_iGlock18ShotsFired() or g_iShotsFired
 		end
+		if weapon:GetClass() == CS16_WEAPON_FAMAS and weapon:GetBurstMode() then
+			g_iShotsFired = weapon:Getm_iFamasShotsFired() or g_iShotsFired
+		end
 		local iWeaponAccuracyFlags = 0
 		local iBarSize = 0
 		local flCrosshairDistance = 0
@@ -209,7 +212,7 @@ if CLIENT then
 				m_iAlpha = 120
 			end
 		elseif m_flCrosshairDistance > iDistance then
-			m_flCrosshairDistance = m_flCrosshairDistance - (0.032 * m_flCrosshairDistance) + 0.01
+			m_flCrosshairDistance = m_flCrosshairDistance - (0.032 * m_flCrosshairDistance) + 0.1
 			m_iAlpha = m_iAlpha + 2
 		end
 
