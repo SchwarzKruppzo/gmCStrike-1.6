@@ -3,7 +3,7 @@ if SERVER then
 end
 
 if CLIENT then
-    SWEP.PrintName = "M3"
+    SWEP.PrintName = "Leone 12 Gauge Super"
     SWEP.Slot = 0
     SWEP.SlotPos = 5
 	SWEP.DrawAmmo = false
@@ -138,6 +138,8 @@ function SWEP:PrimaryAttack()
 		return
 	end
 
+	self:Setm_bDelayFire( true )
+	self:Setm_iShotsFired( self:Getm_iShotsFired() + 9 )
 	if SERVER then self:FireAnimation() end
 
 	self:TakePrimaryAmmo( 1 )
