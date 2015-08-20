@@ -31,21 +31,26 @@ if CLIENT then
 			render.DrawSprite( self.PosVM, self.SizeVM, self.SizeVM, Color( 255, 255, 255, 255 ) )
 		end,
 		ThinkWM  = function( self )
-			if !IsValid( self.Ent ) then return false end
-			local attachment = self.Ent:GetAttachment( self.Ent:LookupAttachment( "muzzle" ) )
-			if !attachment then return false end
+			// TODO: WORLD MUZZLEFLASH
+				/*
+				if !IsValid( self.Ent ) then return false end
+				local attachment = self.Ent:GetAttachment( self.Ent:LookupAttachment( "muzzle" ) )
+				if !attachment then return false end
 
-			self.PosWM = attachment.Pos
+				self.PosWM = attachment.Pos
 
-			self.DieTime = self.DieTime + FrameTime()
-			self.SizeWM = ( self.CustomSizeWM and self.CustomSizeWM or 16 ) * self.DieTime ^ 0.08
+				self.DieTime = self.DieTime + FrameTime()
+				self.SizeWM = ( self.CustomSizeWM and self.CustomSizeWM or 16 ) * self.DieTime ^ 0.08
 
-			if self.DieTime >= .035 then return false end	
-			return true
+				if self.DieTime >= .035 then return false end	
+				return true
+			*/
+			return false
 		end,
 		RenderWM  = function( self )
-			render.SetMaterial( self.Mat )
-			render.DrawSprite( self.PosWM, self.SizeWM, self.SizeWM, Color( 255, 255, 255, 255 ) )
+			// TODO: WORLD MUZZLEFLASH
+			//render.SetMaterial( self.Mat )
+			//render.DrawSprite( self.PosWM, self.SizeWM, self.SizeWM, Color( 255, 255, 255, 255 ) )
 		end
 	}
 	CS16_MuzzleFlashes["muzzleflash3"] = {
@@ -54,6 +59,7 @@ if CLIENT then
 			self.SizeVM = 0
 			self.SizeWM = 0
 			self.Mat = Material("cs16/muzzleflash3_"..math.random(1,3))
+			self.Rotate = math.random( -360,360 ) 
 		end,
 		ThinkVM  = function( self )
 			if !IsValid( self.Ent ) then return false end
@@ -72,24 +78,29 @@ if CLIENT then
 		RenderVM  = function( self )
 			// Мы не можем использовать render.DrawSprite так как его нельзя вращать.
 			render.SetMaterial( self.Mat )
-			render.DrawQuadEasy( self.PosVM, -EyeAngles():Forward(), self.SizeVM, self.SizeVM, Color( 255, 255, 255, 255 ), math.Rand(-60,60) ) 
+			render.DrawQuadEasy( self.PosVM, -EyeAngles():Forward(), self.SizeVM, self.SizeVM, Color( 255, 255, 255, 255 ), self.Rotate ) 
 		end,
 		ThinkWM  = function( self )
-			if !IsValid( self.Ent ) then return false end
-			local attachment = self.Ent:GetAttachment( self.Ent:LookupAttachment( "muzzle" ) )
-			if !attachment then return false end
+			// TODO: WORLD MUZZLEFLASH
+			/*
+				if !IsValid( self.Ent ) then return false end
+				local attachment = self.Ent:GetAttachment( self.Ent:LookupAttachment( "muzzle" ) )
+				if !attachment then return false end
 
-			self.PosWM = attachment.Pos
+				self.PosWM = attachment.Pos
 
-			self.DieTime = self.DieTime + FrameTime()
-			self.SizeWM = ( self.CustomSizeWM and self.CustomSizeWM or 16 ) * self.DieTime ^ 0.08
+				self.DieTime = self.DieTime + FrameTime()
+				self.SizeWM = ( self.CustomSizeWM and self.CustomSizeWM or 16 ) * self.DieTime ^ 0.08
 
-			if self.DieTime >= .038 then return false end	
-			return true
+				if self.DieTime >= .038 then return false end	
+				return true
+			*/
+			return false
 		end,
 		RenderWM  = function( self )
-			render.SetMaterial( self.Mat )
-			render.DrawSprite( self.PosWM, self.SizeWM, self.SizeWM, Color( 255, 255, 255, 255 ) )
+			// TODO: WORLD MUZZLEFLASH
+			//render.SetMaterial( self.Mat )
+			//render.DrawSprite( self.PosWM, self.SizeWM, self.SizeWM, Color( 255, 255, 255, 255 ) )
 		end
 	}
 
@@ -104,6 +115,7 @@ if CLIENT then
 		local id = table.insert( osmes.buffer, table.Copy( CS16_MuzzleFlashes[ name ] ) )
 		osmes.buffer[id].Init( osmes.buffer[id] )
 		osmes.buffer[id].Ent = parent
+
 		for k, v in pairs( data ) do
 			osmes.buffer[id][k] = v
 		end
