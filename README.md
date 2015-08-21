@@ -17,6 +17,7 @@ The rebuild of "Schwarz's CS 1.6 SWEPs" with better code and weapon behavior. No
 - M4A1, AK-47, Galil, FAMAS
 - AUG, SG552
 - Scout, AWP
+- M249
 
 ## Known bugs
 - Sometimes fast-switching weapon, you can hear again the sound of draw animation. I don't care why this happens, why EmitSound do not blocking the same sound. This is not prediction bug.
