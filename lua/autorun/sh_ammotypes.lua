@@ -139,4 +139,16 @@ game.AddAmmoType( {
 	maxsplash = 6
 } )
 
+game.AddAmmoType( {
+	name = "CS16_HEGRENADE",
+	dmgtype = DMG_EXPLOSION,
+	tracer = TRACER_LINE,
+	plydmg = 0,
+	npcdmg = 0,
+	force = 500,
+	maxcarry = 30,
+	minsplash = 8,
+	maxsplash = 13
+} )
+
 game.BuildAmmoTypes()

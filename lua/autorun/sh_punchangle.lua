@@ -2,13 +2,13 @@ if SERVER then
 	util.AddNetworkString("CS16_SetViewPunch")
 end
 
-local function VectorScale( inc, scale, out )
+function VectorScale( inc, scale, out )
 	out[1] = inc[1] * scale
 	out[2] = inc[2] * scale
 	out[3] = inc[3] * scale
 end
 
-local function VectorNormalize( v )
+function VectorNormalize( v )
     local length, ilength
  
     length = v[1]*v[1] + v[2]*v[2] + v[3]*v[3]
@@ -21,6 +21,12 @@ local function VectorNormalize( v )
     end
                
     return length
+end
+
+function VectorMA( veca, scale, vecb, vecc)
+	vecc[1] = veca[1] + scale * vecb[1]
+	vecc[2] = veca[2] + scale * vecb[2]
+	vecc[3] = veca[3] + scale * vecb[3]
 end
 
 local meta = FindMetaTable("Player")
@@ -63,7 +69,7 @@ function meta:CS16_DropPunchAngle( )
 	self:CS16_SetViewPunch( Angle( self._cs16_vp.x, self._cs16_vp.y, self._cs16_vp.z ) )
 end
 if SERVER then
-	hook.Add( "Move", "gmCStrike", function( ply )
-		ply:CS16_DropPunchAngle()
-	end)
+	local CS16_DropPunchAngle = debug.getregistry().Player.CS16_DropPunchAngle
+
+	hook.Add( "Move", "gmCStrike", CS16_DropPunchAngle )
 end

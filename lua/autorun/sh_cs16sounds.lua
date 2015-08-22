@@ -520,6 +520,14 @@ sound.Add(
     level = 70,
     sound = "weapons/pinpull.wav"
 })
+sound.Add(
+{
+    name = "OldDefault.HEBounce",
+    channel = CHAN_VOICE,
+    volume = 1.0,
+    level = 75,
+    sound = "weapons/he_bounce-1.wav"
+})
 
 
 // M3
