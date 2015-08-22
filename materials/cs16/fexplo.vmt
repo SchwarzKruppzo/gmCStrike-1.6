@@ -1,0 +1,8 @@
+"UnlitGeneric"
+{
+	"$basetexture" "cs16/fexplo"
+	"$translucent" 1
+	"$vertexcolor" 1
+	"$spriteorigin" 0 0 1002
+	"$additive" 1
+}

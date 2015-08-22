@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "cs16/smokepuff"
+	"$translucent" 1
+	"$vertexcolor" 1
+	"$additive" 1
+}
