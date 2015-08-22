@@ -209,17 +209,12 @@ if CLIENT then
 		
 		if g_iShotsFired > m_iAmmoLastCheck then
 			m_flCrosshairDistance = m_flCrosshairDistance + iDeltaDistance
-			m_iAlpha = m_iAlpha - 40
 
 			if m_flCrosshairDistance > 15 then
 				m_flCrosshairDistance = 15
 			end
-			if m_iAlpha < 120 then
-				m_iAlpha = 120
-			end
 		elseif m_flCrosshairDistance > iDistance then
 			m_flCrosshairDistance = m_flCrosshairDistance - (0.032 * m_flCrosshairDistance) + 0.1
-			m_iAlpha = m_iAlpha + 2
 		end
 
 		if g_iShotsFired > 600 then
@@ -230,10 +225,6 @@ if CLIENT then
 
 		if m_flCrosshairDistance < iDistance then
 			m_flCrosshairDistance = iDistance
-		end
-
-		if m_iAlpha > 255 then
-			m_iAlpha = 255
 		end
 
 		iBarSize = ((m_flCrosshairDistance - iDistance) * 0.5) + 5
