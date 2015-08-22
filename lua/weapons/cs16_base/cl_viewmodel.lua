@@ -132,7 +132,7 @@ function SWEP:CalcView( ply, pos, ang, fov )
 	elseif self:GetScopeZoom() == 2 then
 		if self:GetClass() == CS16_WEAPON_AWP then
 			fov = 10
-		elseif self:GetClass() == CS16_WEAPON_SCOUT then
+		elseif self:GetClass() == CS16_WEAPON_SCOUT or self:GetClass() == CS16_WEAPON_SG550 or self:GetClass() == CS16_WEAPON_G3SG1 then
 			fov = 12.5
 		end
 	end
