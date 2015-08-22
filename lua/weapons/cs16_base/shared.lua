@@ -86,6 +86,9 @@ function SWEP:SetupDataTables()
 	self:NetworkVar( "Int", 22, "ScopeZoom" )
 	self:NetworkVar( "Int", 23, "LastScopeZoom" )
 	self:NetworkVar( "Bool", 24, "ResumeZoom" )
+	self:NetworkVar( "Float", 25, "m_flThrowTime" )
+	self:NetworkVar( "Bool", 26, "m_bPinPulled" )
+	self:NetworkVar( "Bool", 27, "m_bRedraw" )
 end
 
 
@@ -228,7 +231,7 @@ function SWEP:Think()
 		end
 	end
 	if self:Getm_flEjectBrass() != 0 and CurTime() >= self:Getm_flEjectBrass() then
-		if self:IsSniperRifle() then
+		if self.IsSniperRifle and self:IsSniperRifle() then
 			self:CreateShell( "rshell", "1" )
 		else
 			self:CreateShell( "shotgunshell", "1" )
@@ -269,6 +272,15 @@ function SWEP:Think()
 				end
 			end
 		end
+	end
+	if self:Getm_bPinPulled() and !self.Owner:KeyDown( IN_ATTACK ) and CurTime() > self:Getm_flTimeWeaponIdle() then
+		self:Setm_flThrowTime( CurTime() + 0.1 )
+		self:Setm_bPinPulled( false )
+		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Throw, 1 ) end
 
+		self:SetNextPrimaryFire( CurTime() + 0.5 )
+		self:Setm_flTimeWeaponIdle( CurTime() + 0.5 )
+	elseif self:Getm_flThrowTime() > 0 and self:Getm_flThrowTime() < CurTime() then
+		if self.Throw then self:Throw() end
 	end
 end
