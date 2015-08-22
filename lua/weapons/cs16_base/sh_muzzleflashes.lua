@@ -111,6 +111,7 @@ if CLIENT then
 		if !CS16_MuzzleFlashes[ name ] then
 			return
 		end
+		if parent.GetScopeZoom and parent:GetScopeZoom() != 0 then return end
 
 		local id = table.insert( osmes.buffer, table.Copy( CS16_MuzzleFlashes[ name ] ) )
 		osmes.buffer[id].Init( osmes.buffer[id] )
