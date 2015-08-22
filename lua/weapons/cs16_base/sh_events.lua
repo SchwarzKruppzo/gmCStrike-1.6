@@ -156,8 +156,14 @@ end
 shellDir["wep_cs16_awp"] = function( attach )
 	return -attach.Ang:Forward() + EyeAngles():Up() - EyeAngles():Right() + EyeAngles():Forward() * math.Rand( 1, 2 )
 end
+shellDir["wep_cs16_sg550"] = function( attach )
+	return -attach.Ang:Forward() * math.Rand( 2, 3 ) + EyeAngles():Up() * math.Rand( 2, 4 ) + EyeAngles():Forward() * math.Rand( 1, 2 )
+end
+shellDir["wep_cs16_g3sg1"] = function( attach )
+	return -attach.Ang:Forward() * math.Rand( 2, 3 ) + EyeAngles():Up() * math.Rand( 2, 4 ) + EyeAngles():Forward() * math.Rand( 1, 2 )
+end
 
-function SWEP:CreateShell( shell, attachment )
+function SWEP:CreateShell( shell, attachment, client )
 	if (SERVER and !CLIENT) or (SERVER and game.SinglePlayer()) then
 		umsg.Start( "CS16_CreateShell", self.Owner )
 			umsg.String( shell )
@@ -165,7 +171,7 @@ function SWEP:CreateShell( shell, attachment )
 			umsg.Entity( self )
 		umsg.End()
 		return
-	elseif CLIENT then
+	elseif CLIENT and client then
 		if !game.SinglePlayer() then
 			if !IsFirstTimePredicted() then return end
 		end
@@ -179,22 +185,28 @@ function SWEP:CreateShell( shell, attachment )
 
 		if attach then
 			local angvel = nil
+			local posOffset = Vector()
 			if shellDir[self:GetClass()] then
 				dir = shellDir[self:GetClass()]( attach )
 			else
 				dir = shellDir["default"]( attach )
 			end
-			if self:GetClass() == "wep_cs16_m3" or self:GetClass() == "wep_cs16_xm1014" then
+			if self:GetClass() == CS16_WEAPON_M3 or self:GetClass() == CS16_WEAPON_XM1014 then
 				angvel = VectorRand() * 1000
 			end
-			if self:GetClass() == "wep_cs16_elite" then
+			if self:GetClass() == CS16_WEAPON_ELITE then
 				if self:GetLeftMode() then
 					dir = shellDir["wep_cs16_elite_left"]( attach )
 				else
 					dir = shellDir["wep_cs16_elite_right"]( attach )
 				end
 			end
-			CS16_SpawnVShell( CS16_Shells[shell].model, CS16_Shells[shell].sound, attach.Pos + dir/2, EyeAngles(), dir * 35, 0.6, 5, angvel )
+
+			if self:GetScopeZoom() != 0 then
+				posOffset = -EyeAngles():Right() * 10
+			end
+
+			CS16_SpawnVShell( CS16_Shells[shell].model, CS16_Shells[shell].sound, attach.Pos + dir / 2 + posOffset, EyeAngles(), dir * 35, 0.6, 5, angvel )
 		end
 		return
 	end
@@ -219,7 +231,7 @@ if CLIENT then
 		local attachment = data:ReadString()
 		local weapon = data:ReadEntity()
 		
-		weapon:CreateShell( shell, attachment )
+		weapon:CreateShell( shell, attachment, true )
 	end
 
 	usermessage.Hook( "CS16_CreateShell", CS16_CreateShell )
