@@ -178,7 +178,7 @@ function SWEP:IsSniperRifle()
 end
 
 function SWEP:GetMaxSpeed()
-	return self:GetScopeZoom() == 0 and CS16_SCOUT_MAX_SPEED or CS16_SCOUT_MAX_SPEED_ZOOM
+	return self:GetScopeZoom() == 0 and CS16_AWP_MAX_SPEED or CS16_AWP_MAX_SPEED_ZOOM
 end
 
 function SWEP:AdjustMouseSensitivity()
