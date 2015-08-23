@@ -25,20 +25,29 @@ function ENT:Explode()
 	if SERVER then
 		local tracedata = {}
 		local data = EffectData()
-		local tr
+		local m_pTrace
+		local dmg = DamageInfo()
+		local pos = self:GetPos()
 
-		tracedata.start = self:GetPos()
-		tracedata.endpos = self:GetPos() - Vector( 0, 0, 60 )
-		tracedata.mask = MASK_SOLID
+		tracedata.start = pos + Vector( 0, 0, 8 )
+		tracedata.endpos = ( pos + Vector( 0, 0, 8 ) ) + Vector( 0, 0, -40 )
 		tracedata.filter = self
-		tr = util.TraceLine( tracedata )
-		data:SetOrigin( self:GetPos() )
-		data:SetEntity( self )
-		util.Effect( "cs16_explosion", data )
-		util.Decal( "Scorch", tr.HitPos + tr.HitNormal, tr.HitPos - tr.HitNormal)
+		tracedata.mask = MASK_SOLID
+		m_pTrace = util.TraceLine( tracedata )
 
-		util.BlastDamage( self, self:Getm_hOwner(), self:GetPos(),  100 * 2.8, 118 )
-		self:EmitSound("weapons/exp"..math.random(1,3)..".wav", 140, 100, 1, CHAN_STATIC )
+		if m_pTrace.Fraction != 1 then
+			pos = m_pTrace.HitPos + ( m_pTrace.HitNormal * ( 100 - 24 ) * 0.6 )
+		end
+
+		data:SetOrigin( pos )
+		data:SetEntity( self )
+
+		util.Effect( "cs16_explosion", data )
+		util.Decal( "Scorch", m_pTrace.HitPos - m_pTrace.HitNormal, m_pTrace.HitPos + m_pTrace.HitNormal )
+		util.BlastDamage( self, self:Getm_hOwner(), pos,  100 * 2.5, 100 )
+
+		self:EmitSound( "weapons/exp"..math.random(1,3)..".wav", 140, 100, 1, CHAN_STATIC )
+		
 		SafeRemoveEntity( self )
 	end
 end
