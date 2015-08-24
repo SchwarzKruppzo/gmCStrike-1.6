@@ -91,7 +91,9 @@ function ENT:Touch( m_hEntity )
 	if m_hEntity == self:Getm_hOwner() then
 		return
 	end
-	self:DoBounce()
+	if m_hEntity:IsSolid() then
+		self:DoBounce()
+	end
 end
 
 local function PhysicsClipVelocity( in_, normal, out, overbounce )
