@@ -56,14 +56,16 @@ function SWEP:Deploy()
 	self:Setm_flThrowTime( 0 )
 	self.MaxSpeed = CS16_HEGRENADE_MAX_SPEED
 
-	if self.Owner:GetAmmoCount( self.Primary.Ammo ) <= 0 then
-		// TODO: self:CS16_SelectBestWeapon()
-		SafeRemoveEntity( self )
-		return false
+	if SERVER then 
+		if self.Owner:GetAmmoCount( self.Primary.Ammo ) <= 0 then
+			// TODO: self:CS16_SelectBestWeapon()
+			SafeRemoveEntity( self )
+			return false
+		end
 	end
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -81,9 +83,11 @@ function SWEP:Holster()
 
 	self:SetNextPrimaryFire( CurTime() + 0.5 )
 
-	if self.Owner:GetAmmoCount( self.Primary.Ammo ) <= 0 then
-		// TODO: self:CS16_SelectBestWeapon()
-		SafeRemoveEntity( self )
+	if SERVER then 
+		if self.Owner:GetAmmoCount( self.Primary.Ammo ) <= 0 then
+			// TODO: self:CS16_SelectBestWeapon()
+			SafeRemoveEntity( self )
+		end
 	end
 
 	return true
@@ -97,7 +101,7 @@ function SWEP:PrimaryAttack()
 	if self:Getm_bRedraw() or self:Getm_bPinPulled() or self:Getm_flThrowTime() > 0 then return end
 	if self.Owner:GetAmmoCount( self.Primary.Ammo ) <= 0 then return end
 
-	if SERVER then CS16_SendWeaponAnim( self, self.Anims.PullPin, 1 ) end
+	CS16_SendWeaponAnim( self, self.Anims.PullPin, 1 )
 	self:Setm_bPinPulled( true )
 
 	self:SetNextPrimaryFire( CurTime() + 0.5 )
@@ -177,12 +181,14 @@ function SWEP:WeaponIdle()
 	if self:Getm_bRedraw() then
 		self:Setm_bRedraw( false )
 		if self.Owner:GetAmmoCount( self.Primary.Ammo ) > 0 then
-			if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+			CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 
 			self:Setm_flTimeWeaponIdle( CurTime() + math.Rand( 10, 15 ) )
 		else
-			// TODO: self:CS16_SelectBestWeapon()
-			SafeRemoveEntity( self )
+			if SERVER then 
+				// TODO: self:CS16_SelectBestWeapon()
+				SafeRemoveEntity( self )
+			end
 		end
 	elseif self.Owner:GetAmmoCount( self.Primary.Ammo ) != 0 and !self:Getm_bPinPulled() then
 		self:Setm_flTimeWeaponIdle( CurTime() + math.Rand( 10, 15 ) )

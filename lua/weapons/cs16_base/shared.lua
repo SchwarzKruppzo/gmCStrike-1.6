@@ -116,7 +116,7 @@ function SWEP:CS16_DefaultReload( clipsize, anim, delay, idleDelay )
 	self:SetNextPrimaryFire( CurTime() + delay )
 	self:SetNextSecondaryFire( CurTime() + delay )
 
-	if SERVER then CS16_SendWeaponAnim( self, anim, 1 ) end
+	CS16_SendWeaponAnim( self, anim, 1 )
 	
 	self:Setm_flTimeWeaponIdle( CurTime() + (idleDelay and idleDelay or 0.5) )
 	self:Setm_bInReload( true )
@@ -125,6 +125,7 @@ function SWEP:CS16_DefaultReload( clipsize, anim, delay, idleDelay )
 end
 
 function SWEP:KickBack( up_base, lateral_base, up_modifier, lateral_modifier, up_max, lateral_max, direction_change )
+	if !IsFirstTimePredicted() then return end
 	local front, side
 
 	if self:Getm_iShotsFired() == 1 then
@@ -136,6 +137,9 @@ function SWEP:KickBack( up_base, lateral_base, up_modifier, lateral_modifier, up
 	end
 
 	local angles = self.Owner:CS16_GetViewPunch()
+	if CLIENT then
+		angles = self.Owner:CS16_GetViewPunch( true )
+	end
 
 	angles.p = angles.p + -front
 	if angles.p <= -up_max then
@@ -160,7 +164,7 @@ function SWEP:KickBack( up_base, lateral_base, up_modifier, lateral_modifier, up
 		self:Setm_bDirection( !self:Getm_bDirection() )
 	end
 
-	self.Owner:CS16_SetViewPunch( angles )
+	self.Owner:CS16_SetViewPunch( angles, true )
 end
 
 function SWEP:Holster( weapon )
@@ -276,7 +280,7 @@ function SWEP:Think()
 	if self:Getm_bPinPulled() and !self.Owner:KeyDown( IN_ATTACK ) and CurTime() > self:Getm_flTimeWeaponIdle() then
 		self:Setm_flThrowTime( CurTime() + 0.1 )
 		self:Setm_bPinPulled( false )
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Throw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Throw, 1 )
 
 		self:SetNextPrimaryFire( CurTime() + 0.5 )
 		self:Setm_flTimeWeaponIdle( CurTime() + 0.5 )

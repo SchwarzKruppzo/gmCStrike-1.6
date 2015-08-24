@@ -47,6 +47,9 @@ function CS16_SendWeaponAnim( weapon, sequence, speed, cycle, time )
 			umsg.Float( cycle )
 			umsg.Entity( weapon )
 		umsg.End()
+		return
+	elseif SERVER and game.IsDedicated() then
+		return
 	elseif SERVER and !CLIENT then
 		umsg.Start( "CS16_SendWeaponAnim", ply )
 			umsg.String( sequence )
@@ -54,6 +57,7 @@ function CS16_SendWeaponAnim( weapon, sequence, speed, cycle, time )
 			umsg.Float( cycle )
 			umsg.Entity( weapon )
 		umsg.End()
+		return
 	end
 		
 	if CLIENT then
@@ -230,8 +234,10 @@ if CLIENT then
 		local shell = data:ReadString()
 		local attachment = data:ReadString()
 		local weapon = data:ReadEntity()
-		
-		weapon:CreateShell( shell, attachment, true )
+
+		if IsValid( weapon ) and weapon.IsCS16 and weapon.CreateShell then
+			weapon:CreateShell( shell, attachment, true )
+		end
 	end
 
 	usermessage.Hook( "CS16_CreateShell", CS16_CreateShell )

@@ -90,7 +90,7 @@ function SWEP:Deploy()
 	local anim = self:GetSilenced() and self.Anims.DrawSilenced or self.Anims.Draw
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, anim, 1 ) end
+		CS16_SendWeaponAnim( self, anim, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, anim, 1, 0, self.Owner:Ping() / 1000 )
@@ -146,10 +146,10 @@ function SWEP:SecondaryAttack()
 
 	if self:GetSilenced() then
 		self:SetSilenced( false )
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.DetachSilencer, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.DetachSilencer, 1 )
 	else
 		self:SetSilenced( true )
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.AttachSilencer, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.AttachSilencer, 1 )
 	end
 
 	self:Setm_flTimeWeaponIdle( CurTime() + 3.0 )
@@ -194,7 +194,7 @@ function SWEP:USPFire( flSpread, flCycleTime )
 		self:Setm_flLastFire( CurTime() )
 	end
 
-	if SERVER then self:FireAnimation() end
+	self:FireAnimation()
 	self:TakePrimaryAmmo( 1 )
 
 	flCycleTime = flCycleTime - 0.075
@@ -215,9 +215,7 @@ function SWEP:USPFire( flSpread, flCycleTime )
 
 	self:CreateShell( "pshell", "1" )
 
-	if SERVER then
-		self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch() + Angle( -2, 0, 0 ) )
-	end
+	self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch( CLIENT ) + Angle( -2, 0, 0 ) )
 
 	self:Setm_flTimeWeaponIdle( CurTime() + 2 )
 end

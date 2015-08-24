@@ -73,7 +73,7 @@ function SWEP:Deploy()
 	self.MaxSpeed = CS16_GLOCK18_MAX_SPEED
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -221,7 +221,7 @@ function SWEP:GLOCK18Fire( flSpread, flCycleTime )
 		empty = ( self:Clip1() - 3 ) <= 0 and true or false
 	end
 
-	if SERVER then self:FireAnimation( empty ) end
+	self:FireAnimation( empty )
 
 	self:TakePrimaryAmmo( 1 )
 

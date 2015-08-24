@@ -75,7 +75,7 @@ function SWEP:Deploy()
 	self.MaxSpeed = CS16_KNIFE_MAX_SPEED
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -166,7 +166,7 @@ function SWEP:Swing( first )
 		if first then
 			self:Setm_iSwing( self:Getm_iSwing() + 1 )
 			local anim = (self:Getm_iSwing() % 2) == 1 and "midslash2" or "midslash1"
-			if SERVER then CS16_SendWeaponAnim( self, anim, 1 ) end
+			CS16_SendWeaponAnim( self, anim, 1 )
 
 			self.Owner:SetAnimation( PLAYER_ATTACK1 )
 
@@ -182,7 +182,7 @@ function SWEP:Swing( first )
 
 		self:Setm_iSwing( self:Getm_iSwing() + 1 )
 		local anim = (self:Getm_iSwing() % 2) == 1 and "midslash2" or "midslash1"
-		if SERVER then CS16_SendWeaponAnim( self, anim, 1 ) end
+		CS16_SendWeaponAnim( self, anim, 1 )
 
 		self:SetNextPrimaryFire( CurTime() + 0.4 )
 		self:SetNextSecondaryFire( CurTime() + 0.5 )
@@ -247,7 +247,7 @@ function SWEP:Stab( first )
 
 	if tr.Fraction >= 1 then
 		if first then
-			if SERVER then CS16_SendWeaponAnim( self, "stab_miss", 1 ) end
+			CS16_SendWeaponAnim( self, "stab_miss", 1 )
 
 			self:SetNextPrimaryFire( CurTime() + 1 )
 			self:SetNextSecondaryFire( CurTime() + 1 )
@@ -259,7 +259,7 @@ function SWEP:Stab( first )
 	else
 		DidHit = true
 
-		if SERVER then CS16_SendWeaponAnim( self, "stab", 1 ) end
+		CS16_SendWeaponAnim( self, "stab", 1 )
 
 		self:SetNextPrimaryFire( CurTime() + 1.1 )
 		self:SetNextSecondaryFire( CurTime() + 1.1 )
@@ -278,7 +278,7 @@ function SWEP:Stab( first )
 			vec2LOS = Vector( vecForward.x, vecForward.y, 0 )
 			vec2LOS = Normalize2D( vec2LOS )
 			if DotProduct2D( vec2LOS, Vector( vecForward.x, vecForward.y, 0 ) ) > 0.8 then
-				info:ScaleDamage(3)
+				//info:ScaleDamage(3)
 			end
 		end
 		info:SetDamageType( bit.bor( DMG_BULLET , DMG_NEVERGIB ) )

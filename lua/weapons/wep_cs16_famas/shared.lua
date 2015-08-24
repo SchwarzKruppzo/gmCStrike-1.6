@@ -63,7 +63,7 @@ function SWEP:Deploy()
 	self.MaxSpeed = CS16_FAMAS_MAX_SPEED
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -103,7 +103,7 @@ function SWEP:FireRemaining()
 		return
 	end
 
-	if SERVER then self:FireAnimation() end
+	self:FireAnimation()
 	self.Owner:FireBullets3( self.Owner:GetShootPos(), self.Owner:EyeAngles() + self.Owner:CS16_GetViewPunch(), self:Getm_flBurstSpread(), 8192, 2, "CS16_556NATO", 30, 0.96, self.Owner, true, self.Owner:EntIndex() )
 
 	self:EmitSound( self.FireSound )
@@ -190,7 +190,7 @@ function SWEP:FamasFire( flSpread, flCycleTime, burst )
 		self:Setm_flAccuracy( 1 )
 	end
 
-	if SERVER then self:FireAnimation() end
+	self:FireAnimation()
 	self:TakePrimaryAmmo( 1 )
 
 	osmes.SpawnEffect( self.Owner, "muzzleflash3", self, { DrawViewModel = true, CustomSizeVM = 20 } )
@@ -210,16 +210,14 @@ function SWEP:FamasFire( flSpread, flCycleTime, burst )
 	self:SetNextSecondaryFire( CurTime() + flCycleTime )
 	self:Setm_flTimeWeaponIdle( CurTime() + 1.1 )
 
-	if SERVER then
-		if !self.Owner:IsOnGround() then
-			self:KickBack( 1.25, 0.45, 0.22, 0.18, 5.5, 4, 5 )
-		elseif self.Owner:GetVelocity():Length2D() > 0 then
-			self:KickBack( 1, 0.45, 0.275, 0.05, 4, 2.5, 7 )
-		elseif self.Owner:Crouching() then
-			self:KickBack( 0.575, 0.325, 0.2, 0.011, 3.25, 2, 8 )
-		else
-			self:KickBack( 0.625, 0.375, 0.25, 0.0125, 3.5, 2.25, 8 )
-		end
+	if !self.Owner:IsOnGround() then
+		self:KickBack( 1.25, 0.45, 0.22, 0.18, 5.5, 4, 5 )
+	elseif self.Owner:GetVelocity():Length2D() > 0 then
+		self:KickBack( 1, 0.45, 0.275, 0.05, 4, 2.5, 7 )
+	elseif self.Owner:Crouching() then
+		self:KickBack( 0.575, 0.325, 0.2, 0.011, 3.25, 2, 8 )
+	else
+		self:KickBack( 0.625, 0.375, 0.25, 0.0125, 3.5, 2.25, 8 )
 	end
 
 	if self:GetBurstMode() then

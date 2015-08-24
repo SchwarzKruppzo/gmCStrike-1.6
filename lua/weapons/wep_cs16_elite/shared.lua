@@ -73,7 +73,7 @@ function SWEP:Deploy()
 	end
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -146,7 +146,7 @@ function SWEP:ELITEFire( flSpread, flCycleTime )
 		self:Setm_flLastFire( CurTime() )
 	end
 
-	if SERVER then self:FireAnimation( self:GetLeftMode() ) end
+	self:FireAnimation( self:GetLeftMode() )
 
 	self:TakePrimaryAmmo( 1 )
 
@@ -179,9 +179,7 @@ function SWEP:ELITEFire( flSpread, flCycleTime )
 	
 	self:EmitSound( self.FireSound )
 
-	if SERVER then
-		self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch() + Angle( -2, 0, 0 ) )
-	end
+	self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch( CLIENT ) + Angle( -2, 0, 0 ), true )
 
 	self:Setm_flTimeWeaponIdle( CurTime() + 2 )
 end

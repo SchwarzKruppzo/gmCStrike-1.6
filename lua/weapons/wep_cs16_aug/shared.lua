@@ -62,7 +62,7 @@ function SWEP:Deploy()
 	self:Setm_flAccuracy( 0.2 )
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -143,7 +143,7 @@ function SWEP:AUGFire( flSpread, flCycleTime )
 		self:Setm_flAccuracy( 1 )
 	end
 
-	if SERVER then self:FireAnimation() end
+	self:FireAnimation()
 	self:TakePrimaryAmmo( 1 )
 
 	osmes.SpawnEffect( self.Owner, "muzzleflash3", self, { DrawViewModel = true, CustomSizeVM = 20 } )
@@ -160,17 +160,15 @@ function SWEP:AUGFire( flSpread, flCycleTime )
 
 	self:SetNextPrimaryFire( CurTime() + flCycleTime )
 	self:Setm_flTimeWeaponIdle( CurTime() + 1 )
-
-	if SERVER then
-		if !self.Owner:IsOnGround() then
-			self:KickBack( 1.25, 0.45, 0.22, 0.18, 5.5, 4.0, 5 )
-		elseif self.Owner:GetVelocity():Length2D() > 0 then
-			self:KickBack( 1.0, 0.45, 0.275, 0.05, 4.0, 2.5, 7 )
-		elseif self.Owner:Crouching() then
-			self:KickBack( 0.575, 0.325, 0.2, 0.011, 3.25, 2.0, 8 )
-		else
-			self:KickBack( 0.625, 0.375, 0.25, 0.0125, 3.5, 2.25, 8 )
-		end
+	
+	if !self.Owner:IsOnGround() then
+		self:KickBack( 1.25, 0.45, 0.22, 0.18, 5.5, 4.0, 5 )
+	elseif self.Owner:GetVelocity():Length2D() > 0 then
+		self:KickBack( 1.0, 0.45, 0.275, 0.05, 4.0, 2.5, 7 )
+	elseif self.Owner:Crouching() then
+		self:KickBack( 0.575, 0.325, 0.2, 0.011, 3.25, 2.0, 8 )
+	else
+		self:KickBack( 0.625, 0.375, 0.25, 0.0125, 3.5, 2.25, 8 )
 	end
 end
 

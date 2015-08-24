@@ -64,7 +64,7 @@ function SWEP:Deploy()
 	self.MaxSpeed = CS16_GALIL_MAX_SPEED
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -133,7 +133,7 @@ function SWEP:GalilFire( flSpread, flCycleTime )
 		self:Setm_flAccuracy( 1.25 )
 	end
 
-	if SERVER then self:FireAnimation() end
+	self:FireAnimation()
 
 	self:TakePrimaryAmmo( 1 )
 
@@ -153,16 +153,14 @@ function SWEP:GalilFire( flSpread, flCycleTime )
 	self:SetNextSecondaryFire( CurTime() + flCycleTime )
 	self:Setm_flTimeWeaponIdle( CurTime() + 1.9 )
 
-	if SERVER then
-		if !self.Owner:IsOnGround() then
-			self:KickBack( 1.2, 0.5, 0.23, 0.15, 5.5, 3.5, 6 )
-		elseif self.Owner:GetVelocity():Length2D() > 0 then
-			self:KickBack( 1.0, 0.45, 0.28, 0.045, 3.75, 3.0, 7 )
-		elseif self.Owner:Crouching() then
-			self:KickBack( 0.6, 0.3, 0.2, 0.0125, 3.25, 2.0, 7 )
-		else
-			self:KickBack( 0.65, 0.35, 0.25, 0.015, 3.5, 2.25, 7 )
-		end
+	if !self.Owner:IsOnGround() then
+		self:KickBack( 1.2, 0.5, 0.23, 0.15, 5.5, 3.5, 6 )
+	elseif self.Owner:GetVelocity():Length2D() > 0 then
+		self:KickBack( 1.0, 0.45, 0.28, 0.045, 3.75, 3.0, 7 )
+	elseif self.Owner:Crouching() then
+		self:KickBack( 0.6, 0.3, 0.2, 0.0125, 3.25, 2.0, 7 )
+	else
+		self:KickBack( 0.65, 0.35, 0.25, 0.015, 3.5, 2.25, 7 )
 	end
 end
 

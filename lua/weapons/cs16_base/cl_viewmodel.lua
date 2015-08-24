@@ -28,27 +28,8 @@ function CalcBob()
 	return bob
 end
 
-
 local viewmodel_new, viewmodel_old, eyepos, eyeang, frametime, curtime, matrix
 local matrix_invert, matrix_normal = Vector(1, -1, 1), Vector(1, 1, 1)
-/*
-serverside_punchangle = serverside_punchangle or Vector( 0, 0, 0 )
-
-net.Receive( "CS16_SetViewPunch", function()
-	local xyz = net.ReadString()
-	local vector = string.Explode( " ", xyz )
-
-	if vector[1] != "nil" then
-		serverside_punchangle[1] = tonumber(vector[1])
-	end
-	if vector[2] != "nil" then
-		serverside_punchangle[2] = tonumber(vector[2])
-	end
-	if vector[3] != "nil" then
-		serverside_punchangle[3] = tonumber(vector[3])
-	end
-end)
-*/
 
 function SWEP:PreDrawViewModel() 
 	render.SetBlend( 0 )
@@ -70,9 +51,9 @@ function SWEP:PostDrawViewModel()
 
 	local bob_int = CalcBob()
 
-	eyeang[1] = eyeang[1] - self.Owner:CS16_GetViewPunch()[1]
-	eyeang[2] = eyeang[2] - self.Owner:CS16_GetViewPunch()[2]
-	eyeang[3] = eyeang[3] - self.Owner:CS16_GetViewPunch()[3]
+	eyeang[1] = eyeang[1] - self.Owner:CS16_GetViewPunch( true )[1]
+	eyeang[2] = eyeang[2] - self.Owner:CS16_GetViewPunch( true )[2]
+	eyeang[3] = eyeang[3] - self.Owner:CS16_GetViewPunch( true )[3]
 
 	eyepos = eyepos + ( (eyeang:Forward() - eyeang:Right() * 0.05 + eyeang:Up() * 0.1 ) * bob_int * 0.4)
 	eyepos[3] = eyepos[3] - 1
@@ -119,9 +100,9 @@ function SWEP:CalcView( ply, pos, ang, fov )
 		local bob_int = CalcBob()
 
 		pos[3] = pos[3] + bob_int
-		ang[1] = ang[1] + ply:CS16_GetViewPunch()[1]
-		ang[2] = ang[2] + ply:CS16_GetViewPunch()[2]
-		ang[3] = ang[3] + ply:CS16_GetViewPunch()[3]
+		ang[1] = ang[1] + ply:CS16_GetViewPunch( true )[1]
+		ang[2] = ang[2] + ply:CS16_GetViewPunch( true )[2]
+		ang[3] = ang[3] + ply:CS16_GetViewPunch( true )[3]
 	end
 
 	if self:GetIsInScope() then

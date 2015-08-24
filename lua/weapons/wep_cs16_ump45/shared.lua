@@ -61,7 +61,7 @@ function SWEP:Deploy()
 	self.MaxSpeed = CS16_UMP45_MAX_SPEED
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -120,7 +120,7 @@ function SWEP:UMP45Fire( flSpread, flCycleTime )
 		self:Setm_flAccuracy( 1 )
 	end
 
-	if SERVER then self:FireAnimation() end
+	self:FireAnimation()
 
 	self:TakePrimaryAmmo( 1 )
 
@@ -139,16 +139,14 @@ function SWEP:UMP45Fire( flSpread, flCycleTime )
 	self:SetNextPrimaryFire( CurTime() + flCycleTime )
 	self:Setm_flTimeWeaponIdle( CurTime() + 2 )
 
-	if SERVER then
-		if !self.Owner:IsOnGround() then
-			self:KickBack( 0.125, 0.65, 0.55, 0.0475, 5.5, 4.0, 10 )
-		elseif self.Owner:GetVelocity():Length2D() > 0 then
-			self:KickBack( 0.55, 0.3, 0.225, 0.03, 3.5, 2.5, 10 )
-		elseif self.Owner:Crouching() then
-			self:KickBack( 0.25, 0.175, 0.125, 0.02, 2.25, 1.25, 10 )
-		else
-			self:KickBack( 0.275, 0.2, 0.15, 0.0225, 2.5, 1.5, 10 )
-		end
+	if !self.Owner:IsOnGround() then
+		self:KickBack( 0.125, 0.65, 0.55, 0.0475, 5.5, 4.0, 10 )
+	elseif self.Owner:GetVelocity():Length2D() > 0 then
+		self:KickBack( 0.55, 0.3, 0.225, 0.03, 3.5, 2.5, 10 )
+	elseif self.Owner:Crouching() then
+		self:KickBack( 0.25, 0.175, 0.125, 0.02, 2.25, 1.25, 10 )
+	else
+		self:KickBack( 0.275, 0.2, 0.15, 0.0225, 2.5, 1.5, 10 )
 	end
 end
 

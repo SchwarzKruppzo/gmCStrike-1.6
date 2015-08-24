@@ -55,7 +55,7 @@ function SWEP:Deploy()
 	end
 	
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -139,7 +139,7 @@ function SWEP:SG550Fire( flSpread, flCycleTime )
 		return
 	end
 
-	if SERVER then self:FireAnimation() end
+	self:FireAnimation()
 	self:TakePrimaryAmmo( 1 )
 
 	osmes.SpawnEffect( self.Owner, "muzzleflash3", self, { DrawViewModel = true, CustomSizeVM = 24 } )
@@ -158,12 +158,10 @@ function SWEP:SG550Fire( flSpread, flCycleTime )
 	self:SetNextSecondaryFire( CurTime() + flCycleTime )
 	self:Setm_flTimeWeaponIdle( CurTime() + 1.8 )
 
-	if SERVER then
-		local angle = self.Owner:CS16_GetViewPunch()
-		angle.p = angle.p - math.Rand( 1.5, 1.75 ) + ( angle.p / 4 )
-		angle.y = angle.y + math.Rand( -1, 1 )
-		self.Owner:CS16_SetViewPunch( angle )
-	end
+	local angle = self.Owner:CS16_GetViewPunch( CLIENT)
+	angle.p = angle.p - math.Rand( 1.5, 1.75 ) + ( angle.p / 4 )
+	angle.y = angle.y + math.Rand( -1, 1 )
+	self.Owner:CS16_SetViewPunch( angle )
 end
 
 function SWEP:WeaponIdle()

@@ -67,7 +67,7 @@ function SWEP:Deploy()
 	self.MaxSpeed = CS16_M3_MAX_SPEED
 
 	if not self.FirstDeploy then
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Draw, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
 	else
 		if SP and SERVER then
 			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
@@ -90,7 +90,7 @@ function SWEP:Reload()
 
 	if self:Getm_iInSpecialReload() == 0 then
 		self.Owner:SetAnimation( PLAYER_RELOAD )
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.ReloadStart, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.ReloadStart, 1 )
 		self:Setm_iInSpecialReload( 1 )
 
 		self:SetNextPrimaryFire( CurTime() + 0.55 )
@@ -101,7 +101,7 @@ function SWEP:Reload()
 		end
 
 		self:Setm_iInSpecialReload( 2 )
-		if SERVER then CS16_SendWeaponAnim( self, self.Anims.Reload, 1 ) end
+		CS16_SendWeaponAnim( self, self.Anims.Reload, 1 )
 
 		self:Setm_flTimeWeaponIdle( CurTime() + 0.3 )
 	else
@@ -138,7 +138,7 @@ function SWEP:PrimaryAttack()
 
 	self:Setm_bDelayFire( true )
 	self:Setm_iShotsFired( self:Getm_iShotsFired() + 6 )
-	if SERVER then self:FireAnimation() end
+	self:FireAnimation()
 
 	self:TakePrimaryAmmo( 1 )
 
@@ -179,12 +179,10 @@ function SWEP:PrimaryAttack()
 
 	self:Setm_iInSpecialReload( 0 )
 
-	if SERVER then
-		if self.Owner:IsOnGround() then
-			self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch() + Angle( -math.random( 3, 5 ), 0, 0 ) )
-		else
-			self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch() + Angle( -math.random( 7, 10 ), 0, 0 ) )
-		end
+	if self.Owner:IsOnGround() then
+		self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch( CLIENT ) + Angle( -math.random( 3, 5 ), 0, 0 ) )
+	else
+		self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch( CLIENT ) + Angle( -math.random( 7, 10 ), 0, 0 ) )
 	end
 end
 
@@ -204,7 +202,7 @@ function SWEP:WeaponIdle()
 			if self:Clip1() != CS16_XM1014_MAX_CLIP and self.Owner:GetAmmoCount( self.Primary.Ammo ) > 0 then
 				self:Reload()
 			else
-				if SERVER then CS16_SendWeaponAnim( self, self.Anims.ReloadEnd, 1 ) end
+				CS16_SendWeaponAnim( self, self.Anims.ReloadEnd, 1 )
 				self:Setm_iInSpecialReload( 0 )
 				self:Setm_flTimeWeaponIdle( CurTime() + 1.5 )
 				self:Set_nextFire( 0 )
