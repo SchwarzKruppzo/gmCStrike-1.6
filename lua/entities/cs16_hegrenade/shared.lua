@@ -43,8 +43,9 @@ function ENT:Explode()
 		data:SetEntity( self )
 
 		util.Effect( "cs16_explosion", data )
-		util.Decal( "Scorch", m_pTrace.HitPos - m_pTrace.HitNormal, m_pTrace.HitPos + m_pTrace.HitNormal )
-		util.BlastDamage( self, self:Getm_hOwner(), pos,  100 * 2.5, 100 )
+		util.Decal( "Scorch", m_pTrace.HitPos + m_pTrace.HitNormal, m_pTrace.HitPos )
+
+		RadiusDamage( pos, self, self:Getm_hOwner(), 100, 100 * 2.5, DMG_PLASMA )
 
 		self:EmitSound( "weapons/exp"..math.random(1,3)..".wav", 140, 100, 1, CHAN_STATIC )
 		

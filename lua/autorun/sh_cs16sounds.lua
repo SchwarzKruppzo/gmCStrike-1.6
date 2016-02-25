@@ -1210,3 +1210,71 @@ sound.Add(
     sound = "weapons/knife_stab.wav",
 })
 
+
+sound.Add(
+{
+    name = "OldPlayer.Death",
+    channel = CHAN_VOICE,
+    volume = 1.0,
+    level = 75,
+    sound = {"cs16player/die1.wav","cs16player/die2.wav","cs16player/die3.wav"},
+})
+sound.Add(
+{
+    name = "OldPlayer.DamageHeadshot",
+    channel = CHAN_VOICE,
+    volume = 1.0,
+    level = 75,
+    sound = {"cs16player/headshot1.wav","cs16player/headshot2.wav","cs16player/headshot3.wav"},
+})
+sound.Add(
+{
+    name = "OldPlayer.DamageHelmet",
+    channel = CHAN_BODY,
+    volume = 1.0,
+    level = 75,
+    sound = "cs16player/bhit_helmet-1.wav",
+})
+sound.Add(
+{
+    name = "OldPlayer.DamageKevlar",
+    channel = CHAN_BODY,
+    volume = 1.0,
+    level = 75,
+    sound = "cs16player/bhit_kevlar-1.wav",
+})
+sound.Add(
+{
+    name = "OldPlayer.Damage",
+    channel = CHAN_BODY,
+    volume = 1.0,
+    level = 75,
+    sound = {"cs16player/bhit_flesh-1.wav","cs16player/bhit_flesh-2.wav","cs16player/bhit_flesh-3.wav"},
+})
+sound.Add(
+{
+    name = "OldStuff.Pickup",
+    channel = CHAN_ITEM,
+    volume = 1.0,
+    level = 75,
+    sound = "items/gunpickup2.wav",
+})
+sound.Add(
+{
+    name = "OldStuff.AmmoPickup",
+    channel = CHAN_ITEM,
+    volume = 1.0,
+    level = 75,
+    sound = "items/9mmclip1.wav",
+})
+sound.Add(
+{
+    name = "OldStuff.Kevlar",
+    channel = CHAN_ITEM,
+    volume = 1.0,
+    level = 75,
+    sound = "items/ammopickup2.wav",
+})
+
+
+

@@ -4,10 +4,12 @@ end
 
 if CLIENT then
     SWEP.PrintName = "Night Hawk .50c"
-    SWEP.Slot = 1
-    SWEP.SlotPos = 1
 	SWEP.DrawAmmo = false
 end
+SWEP.AnimPrefix = "pistol"
+SWEP.Slot = 1
+SWEP.SlotPos = 1
+SWEP.Price = 650
 
 SWEP.Category = "Counter-Strike 1.6"
 SWEP.Base = "cs16_base"
@@ -22,7 +24,10 @@ SWEP.Spawnable            = true
 SWEP.AdminSpawnable        = true
 
 SWEP.ViewModelMDL 		= "models/weapons/cs16/v_deagle.mdl"
-SWEP.WorldModel   		= "models/weapons/cs16/w_deagle.mdl"
+SWEP.ViewModelMDLShield = "models/weapons/cs16/shield/v_shield_deagle.mdl"
+SWEP.WorldModel   		= "models/weapons/cs16/p_deagle.mdl"
+SWEP.WorldModelShield	= "models/weapons/cs16/shield/p_shield_deagle.mdl"
+SWEP.PickupModel   		= "models/cs16/w_deagle.mdl"
 SWEP.HoldType			= "pistol"
 
 SWEP.Weight				= CS16_DEAGLE_WEIGHT
@@ -42,33 +47,76 @@ SWEP.Sounds["reload"] = {
 	[1] = {time = 0.4666666666666667, sound = Sound( "OldDeagle.Clipout" )},
 	[2] = {time = 1.133333333333333, sound = Sound( "OldDeagle.Clipin" )},
 }
+SWEP.Sounds["reload_shield"] = {
+	[1] = {time = 0.4666666666666667, sound = Sound( "OldDeagle.Clipout" )},
+	[2] = {time = 1.133333333333333, sound = Sound( "OldDeagle.Clipin" )},
+	[3] = {time = 2.5, sound = Sound( "OldSeven.SlideRelease" )},
+}
 
 SWEP.Anims = {}
 SWEP.Anims.Draw = "draw"
 SWEP.Anims.Reload = "reload"
 SWEP.Anims.Shoot = { "shoot1", "shoot2" }
 SWEP.Anims.ShootEmpty = "shoot_empty"
+SWEP.Anims.IdleShield = "idle1"
+SWEP.Anims.DrawShield = "draw"
+SWEP.Anims.ShootShield = { "shoot1", "shoot2" }
+SWEP.Anims.ShootEmptyShield = "shoot_empty"
+SWEP.Anims.ReloadShield = "reload"
+SWEP.Anims.ShieldIdle = "shield_idle"
+SWEP.Anims.ShieldUp = "shield_up"
+SWEP.Anims.ShieldDown = "shield_down"
 
 SWEP.FireSound = Sound("OldDeagle.Shot1")
 
 local SP = game.SinglePlayer()
 
+if CLIENT then 
+	function SWEP:ChangeViewModel( strBool )
+		local anim = self.Owner:HasShield() and self.Anims.DrawShield or self.Anims.Draw
+
+		if strBool == "1" and self.viewmodel:GetModel() == self.ViewModelMDLShield then return end
+		if strBool == "0" and self.viewmodel:GetModel() == self.ViewModelMDL then return end
+		
+		if strBool == "1" then
+			self.viewmodel:SetModel( self.ViewModelMDLShield )
+			CS16_SendWeaponAnim( self, anim, 1 )
+		else
+			self.viewmodel:SetModel( self.ViewModelMDL )
+			CS16_SendWeaponAnim( self, anim, 1 )
+		end
+	end
+end
 function SWEP:Deploy()
 	if not IsValid( self.Owner ) then
 		return false
 	end
 
+	if SERVER then
+		if self.Owner:HasShield() then
+			self:CallOnClient( "ChangeViewModel", "1" )
+		else
+			self:CallOnClient( "ChangeViewModel", "0" )
+		end
+	end
+
 	self:Setm_flAccuracy( 0.9 )
 	self.MaxSpeed = CS16_DEAGLE_MAX_SPEED
 
+	local anim = self.Owner:HasShield() and self.Anims.DrawShield or self.Anims.Draw
+
 	if not self.FirstDeploy then
-		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
+		if SERVER then CS16_SendWeaponAnim( self, anim, 1, 0, 0, true, self.Owner:HasShield() and "draw_shield" or nil ) end
 	else
 		if SP and SERVER then
-			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
+			CS16_SendWeaponAnim( self, anim, 1, 0, self.Owner:Ping() / 1000 )
 		end
 		self.FirstDeploy = false
 	end
+
+	self.Owner:AnimResetGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD )
+	
+	self:SetNextPrimaryFire( CurTime() + 0.5 )
 
 	return true
 end
@@ -79,13 +127,15 @@ function SWEP:Reload()
 	end
 	if CLIENT and !IsFirstTimePredicted() then return end
 
-	if self:CS16_DefaultReload( CS16_DEAGLE_MAX_CLIP, self.Anims.Reload, CS16_DEAGLE_RELOAD_TIME ) then
-		self.Owner:SetAnimation( PLAYER_RELOAD )
+	local anim = self.Owner:HasShield() and self.Anims.ReloadShield or self.Anims.Reload
+	if self:CS16_DefaultReload( CS16_DEAGLE_MAX_CLIP, anim, CS16_DEAGLE_RELOAD_TIME, nil, self.Owner:HasShield() and "reload_shield" or nil ) then
 		self:Setm_flAccuracy( 0.9 )
 	end
 end
 
 function SWEP:PrimaryAttack()
+	if self.Owner:IsShieldDrawn() then return end
+
 	if !self.Owner:IsOnGround() then
 		self:DEAGLEFire( 1.5  * ( 1 - self:Getm_flAccuracy() ), 0.3 )
 	elseif self.Owner:GetVelocity():Length2D() > 0 then
@@ -99,6 +149,7 @@ end
 
 function SWEP:FireAnimation()
 	local anim = self:Clip1() == 1 and self.Anims.ShootEmpty or self.Anims.Shoot
+	anim = self.Owner:HasShield() and (self:Clip1() == 1 and self.Anims.ShootEmptyShield or self.Anims.ShootShield) or anim
 
 	CS16_SendWeaponAnim( self, anim, 1 )
 end
@@ -136,8 +187,9 @@ function SWEP:DEAGLEFire( flSpread, flCycleTime )
 
 	self:TakePrimaryAmmo( 1 )
 
-	osmes.SpawnEffect( self.Owner, "muzzleflash2", self, { DrawViewModel = true, CustomSizeVM = 16 } )
-	// worldmodel osmes.SpawnEffect( nil, "muzzleflash2", self, { DrawWorldModel = true, CustomSizeWM = 18 } )
+	local attachment = self.Owner:HasShield() and "1" or nil
+	osmes.SpawnEffect( self.Owner, "muzzleflash2", self, { DrawViewModel = true, atID = attachment, CustomSizeVM = 16 } )
+	osmes.SpawnEffect( nil, "muzzleflash1", self, { DrawWorldModel = true, CustomSizeWM = 10 } )
 
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )
@@ -146,7 +198,8 @@ function SWEP:DEAGLEFire( flSpread, flCycleTime )
 
 	self:EmitSound( self.FireSound )
 
-	self:CreateShell( "pshell", "1" )
+	local eject = self.Owner:HasShield() and "0" or "1"
+	self:CreateShell( "pshell", eject )
 
 	flCycleTime = flCycleTime - 0.075
 
@@ -157,7 +210,19 @@ function SWEP:DEAGLEFire( flSpread, flCycleTime )
 end
 
 function SWEP:WeaponIdle()
-	return
+	if self.Owner.HasShield and self.Owner:HasShield() then
+		if self.Owner:IsShieldDrawn() then
+			self:Setm_flTimeWeaponIdle( CurTime() + 20 )
+			CS16_SendWeaponAnim( self, self.Anims.ShieldIdle, 1 )
+		else
+			local anim = self.Owner:HasShield() and self.Anims.IdleShield or self.Anims.Idle
+
+			self:Setm_flTimeWeaponIdle( CurTime() + 3.0625 )
+			CS16_SendWeaponAnim( self, anim, 1 )
+		end
+	else
+		return
+	end
 end
 
 function SWEP:GetMaxSpeed()

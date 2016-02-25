@@ -4,10 +4,12 @@ end
 
 if CLIENT then
     SWEP.PrintName = "Leone 12 Gauge Super"
-    SWEP.Slot = 0
-    SWEP.SlotPos = 5
 	SWEP.DrawAmmo = false
 end
+SWEP.AnimPrefix = "shotgun"
+SWEP.Slot = 0
+SWEP.SlotPos = 1
+SWEP.Price = 1700
 
 SWEP.Category = "Counter-Strike 1.6"
 SWEP.Base = "cs16_base"
@@ -22,7 +24,8 @@ SWEP.Spawnable            = true
 SWEP.AdminSpawnable        = true
 
 SWEP.ViewModelMDL 		= "models/weapons/cs16/v_m3.mdl"
-SWEP.WorldModel   		= "models/weapons/cs16/w_m3.mdl"
+SWEP.WorldModel   		= "models/weapons/cs16/p_m3.mdl"
+SWEP.PickupModel   		= "models/cs16/w_m3.mdl"
 SWEP.HoldType			= "shotgun"
 
 SWEP.Weight				= CS16_M3_WEIGHT
@@ -73,8 +76,11 @@ function SWEP:Deploy()
 		end
 		self.FirstDeploy = false
 	end
+
+	self.Owner:AnimResetGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD )
 	
 	self:Setm_flTimeWeaponIdle( CurTime() + 4 )
+	self:SetNextPrimaryFire( CurTime() + 0.5 )
 
 	return true
 end
@@ -88,7 +94,7 @@ function SWEP:Reload()
 	end
 
 	if self:Getm_iInSpecialReload() == 0 then
-		self.Owner:SetAnimation( PLAYER_RELOAD )
+		--self.Owner:SetAnimation( PLAYER_RELOAD )
 		CS16_SendWeaponAnim( self, self.Anims.ReloadStart, 1 )
 		self:Setm_iInSpecialReload( 1 )
 
@@ -142,10 +148,22 @@ function SWEP:PrimaryAttack()
 	self:TakePrimaryAmmo( 1 )
 
 	osmes.SpawnEffect( self.Owner, "muzzleflash2", self, { DrawViewModel = true, CustomSizeVM = 18 } )
-	// worldmodel osmes.SpawnEffect( nil, "muzzleflash2", self, { DrawWorldModel = true } )
+	osmes.SpawnEffect( nil, "muzzleflash1", self, { DrawWorldModel = true, CustomSizeWM = 40 } )
 
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )
+
+	local tracedata = {}
+	tracedata.start = self.Owner:GetShootPos()
+	tracedata.endpos = self.Owner:GetShootPos() + (self.Owner:EyeAngles() + self.Owner:CS16_GetViewPunch()):Forward() * 3000
+	tracedata.mask = MASK_SHOT
+	tracedata.filter = self.Owner
+	local tr = util.TraceLine( tracedata )
+	
+	local currentDamage = 0
+	if tr.Fraction != 1 then
+		currentDamage = ((1 - tr.Fraction) * 20)
+	end
 
 	local bullet = {}
 	bullet.Num = 9
@@ -154,8 +172,8 @@ function SWEP:PrimaryAttack()
 	bullet.Spread = CS16_VECTOR_CONE_M3
 	bullet.Distance = 3000
 	bullet.Tracer = 0	
-	bullet.Force = 2
-	bullet.Damage = 5
+	bullet.Force = 0
+	bullet.Damage = currentDamage
 	bullet.AmmoType = "CS16_BUCKSHOT"
 	
 	self.Owner:FireBullets( bullet )
@@ -177,9 +195,9 @@ function SWEP:PrimaryAttack()
 	self:Setm_iInSpecialReload( 0 )
 
 	if self.Owner:IsOnGround() then
-		self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch( CLIENT ) + Angle( -math.random( 4, 6 ), 0, 0 ) )
+		self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch( CLIENT ) + Angle( -math.random( 4, 6 ), 0, 0 ), true )
 	else
-		self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch( CLIENT ) + Angle( -math.random( 9, 11 ), 0, 0 ) )
+		self.Owner:CS16_SetViewPunch( self.Owner:CS16_GetViewPunch( CLIENT ) + Angle( -math.random( 9, 11 ), 0, 0 ), true )
 	end
 
 	self:Setm_flEjectBrass( CurTime() + 0.45 )

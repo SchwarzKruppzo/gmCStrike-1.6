@@ -4,10 +4,11 @@ end
 
 if CLIENT then
     SWEP.PrintName = "Knife"
-    SWEP.Slot = 2
-    SWEP.SlotPos = 1
 	SWEP.DrawAmmo = false
 end
+SWEP.AnimPrefix = "knife"
+SWEP.Slot = 2
+SWEP.SlotPos = 1
 
 SWEP.Category = "Counter-Strike 1.6"
 SWEP.Base = "cs16_base"
@@ -22,7 +23,10 @@ SWEP.Spawnable            = true
 SWEP.AdminSpawnable        = true
 
 SWEP.ViewModelMDL 		= "models/weapons/cs16/v_knife.mdl"
-SWEP.WorldModel   		= "models/weapons/cs16/w_knife.mdl"
+SWEP.ViewModelMDLShield = "models/weapons/cs16/shield/v_shield_knife.mdl"
+SWEP.WorldModel   		= "models/weapons/cs16/p_knife.mdl"
+SWEP.WorldModelShield	= "models/weapons/cs16/shield/p_shield_knife.mdl"
+SWEP.PickupModel   		= "models/cs16/w_knife.mdl"
 SWEP.HoldType			= "knife"
 
 SWEP.Weight				= CS16_KNIFE_WEIGHT
@@ -36,23 +40,16 @@ SWEP.Sounds = {}
 SWEP.Sounds["draw"] = {
 	[1] = {time = 0.0333333333333333, sound = Sound( "OldKnife.Deploy" )},
 }
-SWEP.Sounds["reload"] = {
-	[1] = {time = 0.7058823529411765, sound = Sound( "OldP228.ClipOut" )},
-	[2] = {time = 1.441176470588235, sound = Sound( "OldP228.ClipIn" )},
-	[3] = {time = 2.382352941176471, sound = Sound( "OldP228.SlideRelease" )},
-}
+SWEP.SoundsShield = {}
 
 SWEP.Anims = {}
 SWEP.Anims.Idle = "idle"
 SWEP.Anims.Draw = "draw"
-SWEP.Anims.Reload = "reload"
-SWEP.Anims.Shoot = { "shoot1", "shoot2", "shoot3" }
-SWEP.Anims.ShootEmpty = "shoot_empty"
+SWEP.Anims.IdleShield = "idle"
+SWEP.Anims.DrawShield = "deploy"
+SWEP.Anims.ShieldIdle = "shield_idle"
 SWEP.Anims.ShieldUp = "shield_up"
 SWEP.Anims.ShieldDown = "shield_down"
-SWEP.Anims.ShieldIdle = "shield_idle"
-
-SWEP.FireSound = Sound("OldP228.Shot1")
 
 local SP = game.SinglePlayer()
 
@@ -66,24 +63,54 @@ local function Normalize2D( vec )
 	return Vector( vec.x / _Length2D( vec ), vec.y / _Length2D( vec ), 0 )
 end
 
+if CLIENT then 
+	function SWEP:ChangeViewModel( strBool )
+		local anim = self:GetSilenced() and self.Anims.DrawSilenced or self.Anims.Draw
+		anim = self.Owner:HasShield() and self.Anims.DrawShield or anim
+
+		if strBool == "1" and self.viewmodel:GetModel() == self.ViewModelMDLShield then return end
+		if strBool == "0" and self.viewmodel:GetModel() == self.ViewModelMDL then return end
+		
+		if strBool == "1" then
+			self.viewmodel:SetModel( self.ViewModelMDLShield )
+			CS16_SendWeaponAnim( self, anim, 1 )
+		else
+			self.viewmodel:SetModel( self.ViewModelMDL )
+			CS16_SendWeaponAnim( self, anim, 1 )
+		end
+	end
+end
 function SWEP:Deploy()
 	if not IsValid( self.Owner ) then
 		return false
 	end
 
+	if SERVER then
+		if self.Owner:HasShield() then
+			self:CallOnClient( "ChangeViewModel", "1" )
+		else
+			self:CallOnClient( "ChangeViewModel", "0" )
+		end
+	end
+
 	self:Setm_iSwing( 0 )
 	self.MaxSpeed = CS16_KNIFE_MAX_SPEED
 
+	local anim = self.Owner:HasShield() and self.Anims.DrawShield or self.Anims.Draw
+
 	if not self.FirstDeploy then
-		CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
+		if SERVER then CS16_SendWeaponAnim( self, anim, 1, 0, 0, true, self.Owner:HasShield() and "draw_shield" or nil ) end
 	else
 		if SP and SERVER then
-			CS16_SendWeaponAnim( self, self.Anims.Draw, 1, 0, self.Owner:Ping() / 1000 )
+			CS16_SendWeaponAnim( self, anim, 1, 0, self.Owner:Ping() / 1000 )
 		end
 		self.FirstDeploy = false
 	end
+
+	self.Owner:AnimResetGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD )
 	
 	self:Setm_flTimeWeaponIdle( CurTime() + 4 )
+	self:SetNextPrimaryFire( CurTime() + 0.5 )
 
 	return true
 end
@@ -165,13 +192,21 @@ function SWEP:Swing( first )
 	if tr.Fraction >= 1 then
 		if first then
 			self:Setm_iSwing( self:Getm_iSwing() + 1 )
-			local anim = (self:Getm_iSwing() % 2) == 1 and "midslash2" or "midslash1"
-			CS16_SendWeaponAnim( self, anim, 1 )
+
+			if !self.Owner:HasShield() then
+				local anim = (self:Getm_iSwing() % 2) == 1 and "midslash2" or "midslash1"
+				CS16_SendWeaponAnim( self, anim, 1 )
+
+				self:SetNextPrimaryFire( CurTime() + 0.35 )
+				self:SetNextSecondaryFire( CurTime() + 0.5 )
+			else
+				CS16_SendWeaponAnim( self, "slash", 1 )
+
+				self:SetNextPrimaryFire( CurTime() + 1 )
+				self:SetNextSecondaryFire( CurTime() + 1.2 )
+			end
 
 			self.Owner:SetAnimation( PLAYER_ATTACK1 )
-
-			self:SetNextPrimaryFire( CurTime() + 0.35 )
-			self:SetNextSecondaryFire( CurTime() + 0.5 )
 
 			self:Setm_flTimeWeaponIdle( CurTime() + 2 )
 
@@ -181,11 +216,19 @@ function SWEP:Swing( first )
 		DidHit = true
 
 		self:Setm_iSwing( self:Getm_iSwing() + 1 )
-		local anim = (self:Getm_iSwing() % 2) == 1 and "midslash2" or "midslash1"
-		CS16_SendWeaponAnim( self, anim, 1 )
+		if !self.Owner:HasShield() then
+			local anim = (self:Getm_iSwing() % 2) == 1 and "midslash2" or "midslash1"
+			CS16_SendWeaponAnim( self, anim, 1 )
 
-		self:SetNextPrimaryFire( CurTime() + 0.4 )
-		self:SetNextSecondaryFire( CurTime() + 0.5 )
+			self:SetNextPrimaryFire( CurTime() + 0.4 )
+			self:SetNextSecondaryFire( CurTime() + 0.5 )
+		else
+			CS16_SendWeaponAnim( self, "hit", 1 )
+
+			self:SetNextPrimaryFire( CurTime() + 1 )
+			self:SetNextSecondaryFire( CurTime() + 1.2 )
+		end
+
 		self:Setm_flTimeWeaponIdle( CurTime() + 2 )
 
 		self.Owner:SetAnimation( PLAYER_ATTACK1 )
@@ -301,18 +344,23 @@ function SWEP:Stab( first )
 end
 
 function SWEP:PrimaryAttack()
+	if self.Owner:IsShieldDrawn() then return end
+	
 	self.Owner:LagCompensation( true )
 		self:Swing( true )
 	self.Owner:LagCompensation( false )
 end
 
 function SWEP:SecondaryAttack()
-	self.Owner:LagCompensation( true )
-		self:Stab( true )
-	self.Owner:LagCompensation( false )
+	if !self:ShieldSecondaryAttack() then
+		self.Owner:LagCompensation( true )
+			self:Stab( true )
+		self.Owner:LagCompensation( false )
+	end
 end
 
 function SWEP:Holster()
+	self.Owner:SetShieldDrawnState( false )
 	self:SetNextPrimaryFire( CurTime() + 1 )
 	self:SetNextSecondaryFire( CurTime() + 1 )
 	return true
@@ -323,16 +371,17 @@ function SWEP:WeaponIdle()
 		return
 	end
 
-	if self.Owner.HasCS16Shield and self.Owner:HasCS16Shield() then
+	if self.Owner.HasShield and self.Owner:HasShield() then
 		self:Setm_flTimeWeaponIdle( CurTime() + 20 )
 
-		//if (FBitSet(m_iWeaponState, WPNSTATE_SHIELD_DRAWN))
-		//{
-		//	SendWeaponAnim(P228_SHIELD_IDLE_UP, UseDecrement() != FALSE);
-		//}
+		if self.Owner:IsShieldDrawn() then
+			CS16_SendWeaponAnim( self, self.Anims.ShieldIdle, 1 )
+		end
 	elseif self:Clip1() != 0 then 
+		local anim = self.Owner:HasShield() and self.Anims.IdleShield or self.Anims.Idle
+
 		self:Setm_flTimeWeaponIdle( CurTime() + 3.0625 )
-		CS16_SendWeaponAnim( self, self.Anims.Idle, 1 )
+		CS16_SendWeaponAnim( self, anim, 1 )
 	end
 end
 
@@ -340,6 +389,6 @@ function SWEP:GetMaxSpeed()
 	return self.MaxSpeed
 end
 
-function SWEP:IsPistol()
-	return true
+function SWEP:CanDrop()
+	return false
 end

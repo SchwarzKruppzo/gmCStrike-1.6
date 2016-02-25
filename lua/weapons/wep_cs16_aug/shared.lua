@@ -4,10 +4,13 @@ end
 
 if CLIENT then
     SWEP.PrintName = "Bullpup"
-    SWEP.Slot = 0
-    SWEP.SlotPos = 14
 	SWEP.DrawAmmo = false
 end
+SWEP.AnimPrefix = "carbine"
+SWEP.Slot = 0
+SWEP.SlotPos = 1
+SWEP.Price = 3500
+SWEP.iTeam = 3
 
 SWEP.Category = "Counter-Strike 1.6"
 SWEP.Base = "cs16_base"
@@ -22,7 +25,8 @@ SWEP.Spawnable            = true
 SWEP.AdminSpawnable        = true
 
 SWEP.ViewModelMDL 		= "models/weapons/cs16/v_aug.mdl"
-SWEP.WorldModel   		= "models/weapons/cs16/w_aug.mdl"
+SWEP.WorldModel   		= "models/weapons/cs16/p_aug.mdl"
+SWEP.PickupModel   		= "models/cs16/w_aug.mdl"
 SWEP.HoldType			= "ar2"
 
 SWEP.Weight				= CS16_AUG_WEIGHT
@@ -69,8 +73,11 @@ function SWEP:Deploy()
 		end
 		self.FirstDeploy = false
 	end
+
+	self.Owner:AnimResetGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD )
 	
 	self:Setm_flTimeWeaponIdle( CurTime() + 1.5 )
+	self:SetNextPrimaryFire( CurTime() + 0.5 )
 
 	return true
 end
@@ -85,11 +92,19 @@ function SWEP:Reload()
 		if self:GetIsInScope() then
 			self:SetIsInScope( false )
 		end
-		self.Owner:SetAnimation( PLAYER_RELOAD )
 		self:Setm_flAccuracy( 0 )
 		self:Setm_iShotsFired( 0 )
 		self:Setm_bDelayFire( false )
+		self:SetIsInScope( false )
 	end
+end
+
+function SWEP:Holster( weapon )
+	if self:Getm_bInReload() then 
+		self:Setm_bInReload( false )
+	end
+	self:SetIsInScope( false )
+	return true
 end
 
 function SWEP:PrimaryAttack()
@@ -147,7 +162,7 @@ function SWEP:AUGFire( flSpread, flCycleTime )
 	self:TakePrimaryAmmo( 1 )
 
 	osmes.SpawnEffect( self.Owner, "muzzleflash3", self, { DrawViewModel = true, CustomSizeVM = 20 } )
-	// worldmodel osmes.SpawnEffect( nil, "muzzleflash3", self, { DrawWorldModel = true } ) 
+	osmes.SpawnEffect( nil, "muzzleflash1", self, { DrawWorldModel = true, CustomSizeWM = 32 } )
 
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )

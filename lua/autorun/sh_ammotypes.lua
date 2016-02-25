@@ -25,7 +25,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 32,
 	minsplash = 2,
 	maxsplash = 6
@@ -37,7 +37,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 120,
 	minsplash = 3,
 	maxsplash = 8
@@ -49,7 +49,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 90,
 	minsplash = 8,
 	maxsplash = 10
@@ -61,7 +61,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 200,
 	minsplash = 8,
 	maxsplash = 10
@@ -73,7 +73,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 90,
 	minsplash = 8,
 	maxsplash = 10
@@ -85,7 +85,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 100,
 	minsplash = 3,
 	maxsplash = 8
@@ -97,7 +97,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 35,
 	minsplash = 3,
 	maxsplash = 8
@@ -109,7 +109,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 30,
 	minsplash = 8,
 	maxsplash = 13
@@ -121,7 +121,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 100,
 	minsplash = 3,
 	maxsplash = 8
@@ -133,7 +133,7 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 52,
 	minsplash = 3,
 	maxsplash = 6
@@ -145,10 +145,21 @@ game.AddAmmoType( {
 	tracer = TRACER_LINE,
 	plydmg = 0,
 	npcdmg = 0,
-	force = 500,
+	force = 1,
 	maxcarry = 30,
 	minsplash = 8,
 	maxsplash = 13
 } )
 
+game.AddAmmoType( {
+	name = "CS16_C4",
+	dmgtype = DMG_EXPLOSION,
+	tracer = TRACER_LINE,
+	plydmg = 0,
+	npcdmg = 0,
+	force = 1,
+	maxcarry = 30,
+	minsplash = 8,
+	maxsplash = 13
+} )
 game.BuildAmmoTypes()

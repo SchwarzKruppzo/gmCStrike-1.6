@@ -4,10 +4,12 @@ end
 
 if CLIENT then
     SWEP.PrintName = "Magnum Sniper Rifle"
-    SWEP.Slot = 0
-    SWEP.SlotPos = 2
 	SWEP.DrawAmmo = false
 end
+SWEP.AnimPrefix = "rifle"
+SWEP.Slot = 0
+SWEP.SlotPos = 1
+SWEP.Price = 4750
 
 SWEP.Category = "Counter-Strike 1.6"
 SWEP.Base = "cs16_base"
@@ -22,7 +24,8 @@ SWEP.Spawnable            = true
 SWEP.AdminSpawnable        = true
 
 SWEP.ViewModelMDL 		= "models/weapons/cs16/v_awp.mdl"
-SWEP.WorldModel   		= "models/weapons/cs16/w_awp.mdl"
+SWEP.WorldModel   		= "models/weapons/cs16/p_awp.mdl"
+SWEP.PickupModel   		= "models/cs16/w_awp.mdl"
 SWEP.HoldType			= "ar2"
 
 SWEP.Weight				= CS16_AWP_WEIGHT
@@ -77,6 +80,8 @@ function SWEP:Deploy()
 		self.FirstDeploy = false
 	end
 
+	self.Owner:AnimResetGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD )
+
 	self:SetNextPrimaryFire( CurTime() + 1.45 )
 	self:SetNextSecondaryFire( CurTime() + 1 )
 
@@ -90,7 +95,9 @@ function SWEP:Reload()
 	if CLIENT and !IsFirstTimePredicted() then return end
 
 	if self:CS16_DefaultReload( CS16_AWP_MAX_CLIP, self.Anims.Reload, CS16_AWP_RELOAD_TIME, 6 ) then
-		self.Owner:SetAnimation( PLAYER_RELOAD )
+		self:SetResumeZoom( false )
+		self:SetLastScopeZoom( 0 )
+		self:SetScopeZoom( 0 )
 	end
 end
 
@@ -152,7 +159,7 @@ function SWEP:AWPFire( flSpread, flCycleTime )
 	self:TakePrimaryAmmo( 1 )
 
 	osmes.SpawnEffect( self.Owner, "muzzleflash2", self, { DrawViewModel = true, CustomSizeVM = 24 } )
-	// worldmodel osmes.SpawnEffect( nil, "muzzleflash3", self, { DrawWorldModel = true } ) 
+	osmes.SpawnEffect( nil, "muzzleflash1", self, { DrawWorldModel = true, CustomSizeWM = 30 } )
 
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )
@@ -185,6 +192,9 @@ function SWEP:AdjustMouseSensitivity()
 end
 
 function SWEP:Holster()
+	if self:Getm_bInReload() then 
+		self:Setm_bInReload( false )
+	end
 	self:SetScopeZoom( 0 )
 	self:SetLastScopeZoom( 0 )
 	return true

@@ -1,3 +1,4 @@
+
 sound.Add(
 {
     name = "OldHit.PShell",
@@ -22,7 +23,7 @@ CS16_Shells["shotgunshell"] = { model = "models/cs16/shotgunshell.mdl", sound = 
 
 local viewmodel
 
-function CS16_SendWeaponAnim( weapon, sequence, speed, cycle, time )
+function CS16_SendWeaponAnim( weapon, sequence, speed, cycle, time, allowSend, customSoundID )
 	local ply = weapon.Owner and weapon.Owner or nil
 
 	speed = speed and speed or 1
@@ -33,12 +34,22 @@ function CS16_SendWeaponAnim( weapon, sequence, speed, cycle, time )
 		sequence = table.Random( sequence )
 	end
 	
-	if weapon.Sounds[sequence] then
+	weapon.CurrentSoundTable = nil
+	weapon.CurrentSoundEntry = nil
+	weapon.SoundTime = nil
+
+	if weapon.Sounds[sequence] and !customSoundID then
 		weapon.CurrentSoundTable = weapon.Sounds[sequence]
 		weapon.CurrentSoundEntry = 1
 		weapon.SoundSpeed = speed
 		weapon.SoundTime = CurTime() + time
+	elseif customSoundID then
+		weapon.CurrentSoundTable = weapon.Sounds[customSoundID]
+		weapon.CurrentSoundEntry = 1
+		weapon.SoundSpeed = speed
+		weapon.SoundTime = CurTime() + time
 	end
+	
 	
 	if SERVER and game.SinglePlayer() then
 		umsg.Start( "CS16_SendWeaponAnim", Entity( 1 ) )
@@ -46,16 +57,40 @@ function CS16_SendWeaponAnim( weapon, sequence, speed, cycle, time )
 			umsg.Float( speed )
 			umsg.Float( cycle )
 			umsg.Entity( weapon )
+			if customSoundID then umsg.String( customSoundID ) end
 		umsg.End()
 		return
-	elseif SERVER and game.IsDedicated() then
-		return
-	elseif SERVER and !CLIENT then
-		umsg.Start( "CS16_SendWeaponAnim", ply )
+	elseif SERVER and game.IsDedicated() and !allowSend then
+		local filter = RecipientFilter()
+		for k, v in pairs( player.GetAll() ) do
+			if !v:IsObserver() then continue end
+			if v == ply then continue end
+			if v:GetObserverTarget() != ply then continue end
+			filter:AddPlayer( v )
+		end
+		umsg.Start( "CS16_SendWeaponAnim", filter )
 			umsg.String( sequence )
 			umsg.Float( speed )
 			umsg.Float( cycle )
 			umsg.Entity( weapon )
+			if customSoundID then umsg.String( customSoundID ) end
+		umsg.End()
+		return
+	elseif SERVER and !CLIENT then
+		local filter = RecipientFilter()
+		filter:AddPlayer( ply )
+		for k, v in pairs( player.GetAll() ) do
+			if !v:IsObserver() then continue end
+			if v == ply then continue end
+			if v:GetObserverTarget() != ply then continue end
+			filter:AddPlayer( v )
+		end
+		umsg.Start( "CS16_SendWeaponAnim", filter )
+			umsg.String( sequence )
+			umsg.Float( speed )
+			umsg.Float( cycle )
+			umsg.Entity( weapon )
+			if customSoundID then umsg.String( customSoundID ) end
 		umsg.End()
 		return
 	end
@@ -169,7 +204,15 @@ end
 
 function SWEP:CreateShell( shell, attachment, client )
 	if (SERVER and !CLIENT) or (SERVER and game.SinglePlayer()) then
-		umsg.Start( "CS16_CreateShell", self.Owner )
+		local filter = RecipientFilter()
+		filter:AddPlayer( self.Owner )
+		for k, v in pairs( player.GetAll() ) do
+			if !v:IsObserver() then continue end
+			if v == self.Owner then continue end
+			if v:GetObserverTarget() != self.Owner then continue end
+			filter:AddPlayer( v )
+		end
+		umsg.Start( "CS16_CreateShell", filter )
 			umsg.String( shell )
 			umsg.String( attachment )
 			umsg.Entity( self )
@@ -177,7 +220,7 @@ function SWEP:CreateShell( shell, attachment, client )
 		return
 	elseif CLIENT and client then
 		if !game.SinglePlayer() then
-			if !IsFirstTimePredicted() then return end
+			if IsFirstTimePredicted() then return end
 		end
 		if self.Owner:ShouldDrawLocalPlayer() then
 			return
@@ -222,9 +265,13 @@ if CLIENT then
 		local speed = data:ReadFloat()
 		local cycle = data:ReadFloat()
 		local weapon = data:ReadEntity()
-
+		local customSoundID = data:ReadString()
+		local custom = nil
+		if customSoundID and customSoundID != "" then
+			custom = customSoundID
+		end
 		if IsValid( weapon ) and weapon.IsCS16 then
-			CS16_SendWeaponAnim( weapon, sequence, speed, cycle )
+			CS16_SendWeaponAnim( weapon, sequence, speed, cycle, 0, false, custom )
 		end
 	end
 

@@ -4,10 +4,13 @@ end
 
 if CLIENT then
     SWEP.PrintName = "Clarion 5.56"
-    SWEP.Slot = 0
-    SWEP.SlotPos = 18
 	SWEP.DrawAmmo = false
 end
+SWEP.AnimPrefix = "carbine"
+SWEP.Slot = 0
+SWEP.SlotPos = 1
+SWEP.Price = 2250
+SWEP.iTeam = 3
 
 SWEP.Category = "Counter-Strike 1.6"
 SWEP.Base = "cs16_base"
@@ -22,7 +25,8 @@ SWEP.Spawnable            = true
 SWEP.AdminSpawnable        = true
 
 SWEP.ViewModelMDL 		= "models/weapons/cs16/v_famas.mdl"
-SWEP.WorldModel   		= "models/weapons/cs16/w_famas.mdl"
+SWEP.WorldModel   		= "models/weapons/cs16/p_famas.mdl"
+SWEP.PickupModel   		= "models/cs16/w_famas.mdl"
 SWEP.HoldType			= "ar2"
 
 SWEP.Weight				= CS16_FAMAS_WEIGHT
@@ -70,8 +74,11 @@ function SWEP:Deploy()
 		end
 		self.FirstDeploy = false
 	end
+
+	self.Owner:AnimResetGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD )
 	
 	self:Setm_flTimeWeaponIdle( CurTime() + 1.5 )
+	self:SetNextPrimaryFire( CurTime() + 0.5 )
 
 	return true
 end
@@ -83,7 +90,6 @@ function SWEP:Reload()
 	if CLIENT and !IsFirstTimePredicted() then return end
 
 	if self:CS16_DefaultReload( CS16_FAMAS_MAX_CLIP, self.Anims.Reload, CS16_FAMAS_RELOAD_TIME, 4 ) then
-		self.Owner:SetAnimation( PLAYER_RELOAD )
 		self:Setm_flAccuracy( 0.2 )
 		self:Setm_iShotsFired( 0 )
 		self:Setm_bDelayFire( false )
@@ -148,10 +154,18 @@ function SWEP:SecondaryAttack()
 	end
 
 	if self:GetBurstMode() then
-		self.Owner:PrintMessage( HUD_PRINTCENTER, "Switched to semi-automatic" )
+		if self.Owner.OldPrintMessage then
+			self.Owner:OldPrintMessage( "Switched to semi-automatic" )
+		else
+			self.Owner:PrintMessage( HUD_PRINTCENTER, "Switched to semi-automatic" )
+		end
 		self:SetBurstMode( false )
 	else
-		self.Owner:PrintMessage( HUD_PRINTCENTER, "Switched to Burst-Fire mode" )
+		if self.Owner.OldPrintMessage then
+			self.Owner:OldPrintMessage( "Switched to Burst-Fire mode" )
+		else
+			self.Owner:PrintMessage( HUD_PRINTCENTER, "Switched to Burst-Fire mode" )
+		end
 		self:SetBurstMode( true )
 	end
 
@@ -194,7 +208,7 @@ function SWEP:FamasFire( flSpread, flCycleTime, burst )
 	self:TakePrimaryAmmo( 1 )
 
 	osmes.SpawnEffect( self.Owner, "muzzleflash3", self, { DrawViewModel = true, CustomSizeVM = 20 } )
-	// worldmodel osmes.SpawnEffect( nil, "muzzleflash3", self, { DrawWorldModel = true } ) 
+	osmes.SpawnEffect( nil, "muzzleflash1", self, { DrawWorldModel = true, CustomSizeWM = 35 } )
 
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )

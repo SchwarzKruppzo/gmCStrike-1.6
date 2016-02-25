@@ -4,10 +4,13 @@ end
 
 if CLIENT then
     SWEP.PrintName = ".40 Dual Elites"
-    SWEP.Slot = 1
-    SWEP.SlotPos = 3
 	SWEP.DrawAmmo = false
 end
+SWEP.AnimPrefix = "dual"
+SWEP.Slot = 1
+SWEP.SlotPos = 1
+SWEP.Price = 800
+SWEP.iTeam = 2
 
 SWEP.Category = "Counter-Strike 1.6"
 SWEP.Base = "cs16_base"
@@ -22,7 +25,8 @@ SWEP.Spawnable            = true
 SWEP.AdminSpawnable        = true
 
 SWEP.ViewModelMDL 		= "models/weapons/cs16/v_elites.mdl"
-SWEP.WorldModel   		= "models/weapons/cs16/w_elite.mdl"
+SWEP.WorldModel   		= "models/weapons/cs16/p_elite.mdl"
+SWEP.PickupModel   		= "models/cs16/w_elite.mdl"
 SWEP.HoldType			= "duel"
 
 SWEP.Weight				= CS16_ELITE_WEIGHT
@@ -80,8 +84,11 @@ function SWEP:Deploy()
 		end
 		self.FirstDeploy = false
 	end
+
+	self.Owner:AnimResetGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD )
 	
 	self:Setm_flTimeWeaponIdle( CurTime() + 1 )
+	self:SetNextPrimaryFire( CurTime() + 0.5 )
 
 	return true
 end
@@ -93,7 +100,6 @@ function SWEP:Reload()
 	if CLIENT and !IsFirstTimePredicted() then return end
 
 	if self:CS16_DefaultReload( CS16_ELITE_MAX_CLIP, self.Anims.Reload, CS16_ELITE_RELOAD_TIME ) then
-		self.Owner:SetAnimation( PLAYER_RELOAD )
 		self:Setm_flAccuracy( 0.88 )
 	end
 end
@@ -155,7 +161,7 @@ function SWEP:ELITEFire( flSpread, flCycleTime )
 
 	if self:GetLeftMode() then
 		osmes.SpawnEffect( self.Owner, "muzzleflash2", self, { DrawViewModel = true, CustomSizeVM = 10, atID = "0" } )
-		// worldmodel osmes.SpawnEffect( nil, "muzzleflash2", self, { DrawWorldModel = true } )
+		osmes.SpawnEffect( nil, "muzzleflash1", self, { DrawWorldModel = true, CustomSizeWM = 10 } )
 
 		self.Owner:MuzzleFlash()
 		self.Owner:SetAnimation( PLAYER_ATTACK1 )
@@ -166,10 +172,10 @@ function SWEP:ELITEFire( flSpread, flCycleTime )
 		self:CreateShell( "pshell", "2" )
 	else
 		osmes.SpawnEffect( self.Owner, "muzzleflash2", self, { DrawViewModel = true, CustomSizeVM = 10, atID = "1" } )
-		// worldmodel osmes.SpawnEffect( nil, "muzzleflash2", self, { DrawWorldModel = true } )
+		osmes.SpawnEffect( nil, "muzzleflash1", self, { DrawWorldModel = true, CustomSizeWM = 10, atID = "1" } )
 
 		self.Owner:MuzzleFlash()
-		self.Owner:SetAnimation( PLAYER_ATTACK1 )
+		self.Owner:DoAnimationEvent( 551 )
 
 		self:SetLeftMode( true )
 

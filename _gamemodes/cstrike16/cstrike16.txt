@@ -1,0 +1,7 @@
+"cstrike16"
+{
+	"base"		"base"
+	"title"		"Counter-Strike 1.6: Source"
+	"author"	"SchwarzKruppzo"
+	"menusystem" "1"
+}

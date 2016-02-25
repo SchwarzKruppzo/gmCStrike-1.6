@@ -4,10 +4,13 @@ end
 
 if CLIENT then
     SWEP.PrintName = "Maverick M4A1 Carbine"
-    SWEP.Slot = 0
-    SWEP.SlotPos = 6
 	SWEP.DrawAmmo = false
 end
+SWEP.AnimPrefix = "rifle"
+SWEP.Slot = 0
+SWEP.SlotPos = 1
+SWEP.Price = 3100
+SWEP.iTeam = 3
 
 SWEP.Category = "Counter-Strike 1.6"
 SWEP.Base = "cs16_base"
@@ -22,7 +25,8 @@ SWEP.Spawnable            = true
 SWEP.AdminSpawnable        = true
 
 SWEP.ViewModelMDL 		= "models/weapons/cs16/v_m4a1.mdl"
-SWEP.WorldModel   		= "models/weapons/cs16/w_m4a1.mdl"
+SWEP.WorldModel   		= "models/weapons/cs16/p_m4a1.mdl"
+SWEP.PickupModel   		= "models/cs16/w_m4a1.mdl"
 SWEP.HoldType			= "ar2"
 
 SWEP.Weight				= CS16_M4A1_WEIGHT
@@ -97,8 +101,11 @@ function SWEP:Deploy()
 		end
 		self.FirstDeploy = false
 	end
+
+	self.Owner:AnimResetGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD )
 	
 	self:Setm_flTimeWeaponIdle( CurTime() + 1.5 )
+	self:SetNextPrimaryFire( CurTime() + 0.5 )
 
 	return true
 end
@@ -111,7 +118,6 @@ function SWEP:Reload()
 
 	local anim = self:GetSilenced() and self.Anims.ReloadSilenced or self.Anims.Reload
 	if self:CS16_DefaultReload( CS16_M4A1_MAX_CLIP, anim, CS16_M4A1_RELOAD_TIME, 6 ) then
-		self.Owner:SetAnimation( PLAYER_RELOAD )
 		self:Setm_flAccuracy( 0.2 )
 		self:Setm_iShotsFired( 0 )
 	end
@@ -192,7 +198,7 @@ function SWEP:M4A1Fire( flSpread, flCycleTime )
 	local muzzle = self:GetSilenced() and "muzzleflash2" or "muzzleflash3"
 	local muzzle_size = self:GetSilenced() and 10 or 18
 	osmes.SpawnEffect( self.Owner, muzzle, self, { DrawViewModel = true, atID = attachment, CustomSizeVM = muzzle_size } )
-	// worldmodel osmes.SpawnEffect( nil, "muzzleflash3", self, { DrawWorldModel = true } )
+	osmes.SpawnEffect( nil, "muzzleflash1", self, { DrawWorldModel = true, CustomSizeWM = 32 } )
 
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )

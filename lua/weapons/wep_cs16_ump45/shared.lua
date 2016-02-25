@@ -4,10 +4,12 @@ end
 
 if CLIENT then
     SWEP.PrintName = "KM UMP45"
-    SWEP.Slot = 0
-    SWEP.SlotPos = 8
 	SWEP.DrawAmmo = false
 end
+SWEP.AnimPrefix = "carbine"
+SWEP.Slot = 0
+SWEP.SlotPos = 1
+SWEP.Price = 1700
 
 SWEP.Category = "Counter-Strike 1.6"
 SWEP.Base = "cs16_base"
@@ -22,7 +24,8 @@ SWEP.Spawnable            = true
 SWEP.AdminSpawnable        = true
 
 SWEP.ViewModelMDL 		= "models/weapons/cs16/v_ump45.mdl"
-SWEP.WorldModel   		= "models/weapons/cs16/w_ump45.mdl"
+SWEP.WorldModel   		= "models/weapons/cs16/p_ump45.mdl"
+SWEP.PickupModel   		= "models/cs16/w_ump45.mdl"
 SWEP.HoldType			= "ar2"
 
 SWEP.Weight				= CS16_UMP45_WEIGHT
@@ -68,8 +71,11 @@ function SWEP:Deploy()
 		end
 		self.FirstDeploy = false
 	end
+
+	self.Owner:AnimResetGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD )
 	
 	self:Setm_flTimeWeaponIdle( CurTime() + 1.5 )
+	self:SetNextPrimaryFire( CurTime() + 0.5 )
 
 	return true
 end
@@ -81,7 +87,6 @@ function SWEP:Reload()
 	if CLIENT and !IsFirstTimePredicted() then return end
 
 	if self:CS16_DefaultReload( CS16_UMP45_MAX_CLIP, self.Anims.Reload, CS16_UMP45_RELOAD_TIME, 6 ) then
-		self.Owner:SetAnimation( PLAYER_RELOAD )
 		self:Setm_flAccuracy( 0.2 )
 		self:Setm_iShotsFired( 0 )
 	end
@@ -125,7 +130,7 @@ function SWEP:UMP45Fire( flSpread, flCycleTime )
 	self:TakePrimaryAmmo( 1 )
 
 	osmes.SpawnEffect( self.Owner, "muzzleflash2", self, { DrawViewModel = true, CustomSizeVM = 9 } )
-	// worldmodel osmes.SpawnEffect( nil, "muzzleflash2", self, { DrawWorldModel = true } )
+	osmes.SpawnEffect( nil, "muzzleflash1", self, { DrawWorldModel = true, CustomSizeWM = 32 } )
 
 	self.Owner:MuzzleFlash()
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )

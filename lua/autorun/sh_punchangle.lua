@@ -49,6 +49,24 @@ function meta:CS16_SetViewPunch_Client( angle, check )
 	end
 	self.cs16_vp_client = angle
 end
+function meta:CS16_SetViewPunch_Client_XYZ( x, y, z )
+	if SERVER then
+		umsg.Start( "CS16_SetViewPunch_Client_XYZ", self )
+			umsg.Entity( self )
+			umsg.Float( x )
+			umsg.Float( y )
+			umsg.Float( z )
+		umsg.End()
+	end
+end
+function meta:CS16_AddViewPunch_Client( angle )
+	if SERVER then
+		umsg.Start( "CS16_AddViewPunch_Client", self )
+			umsg.Angle( angle )
+			umsg.Entity( self )
+		umsg.End()
+	end
+end
 
 function meta:CS16_GetViewPunch( isLocal )
 	if isLocal and CLIENT then
@@ -62,22 +80,48 @@ if CLIENT then
 	local function _CS16_SetViewPunch( data )
 		local angle = data:ReadAngle()
 		local entity = data:ReadEntity()
-
 		if !IsValid( entity ) then return end
-
 		entity.cs16_vp = angle
 	end
 	local function _CS16_SetViewPunch_Client( data )
 		local angle = data:ReadAngle()
 		local entity = data:ReadEntity()
+		if !IsValid( entity ) then return end
+		entity.cs16_vp_client = angle
+	end
+	local function _CS16_AddViewPunch_Client( data )
+		local angle = data:ReadAngle()
+		local entity = data:ReadEntity()
 
 		if !IsValid( entity ) then return end
 
-		entity.cs16_vp_client = angle
+		entity.cs16_vp_client = entity.cs16_vp_client + angle
+	end
+	local function _CS16_SetViewPunch_Client_XYZ( data )
+		local entity = data:ReadEntity()
+		local x = data:ReadFloat()
+		local y = data:ReadFloat()
+		local z = data:ReadFloat()
+		if !IsValid( entity ) then return end
+
+		local punchangle = LocalPlayer():CS16_GetViewPunch( true )
+		if x != 0 then
+			punchangle.p = x
+		end
+		if y != 0 then
+			punchangle.y = y
+		end
+		if z != 0 then
+			punchangle.r = z
+		end
+
+		entity.cs16_vp_client = punchangle
 	end
 	
 	usermessage.Hook( "CS16_SetViewPunch", _CS16_SetViewPunch )
 	usermessage.Hook( "CS16_SetViewPunch_Client", _CS16_SetViewPunch_Client )
+	usermessage.Hook( "CS16_AddViewPunch_Client", _CS16_SetViewPunch_Client )
+	usermessage.Hook( "CS16_SetViewPunch_Client_XYZ", _CS16_SetViewPunch_Client_XYZ )
 end
 
 if SERVER then

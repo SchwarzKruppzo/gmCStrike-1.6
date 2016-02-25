@@ -80,6 +80,12 @@ function meta:FireBullets3( vecSrc, shootAngles, flSpread, flDistance, iPenetrat
 				iPenetration = 0
 			end
 
+			if tr.HitGroup == HITGROUP_SHIELD and ent.HasShield and ent:HasShield() then
+				iPenetration = 0
+
+				ent:EmitSound( "weapons/ric_metal-"..math.random( 1, 2 )..".wav" )
+			end
+
 			local distanceModifier = 0
 
 			if tr.Entity:GetSolid() != SOLID_BSP and iPenetration == 0 then
@@ -96,9 +102,12 @@ function meta:FireBullets3( vecSrc, shootAngles, flSpread, flDistance, iPenetrat
 			bullet.Dir = vecDir
 			bullet.Spread = Vector( 0, 0, 0 )
 			bullet.Tracer = 0
-			bullet.Force = 5
 			bullet.Damage = currentDamage
 			bullet.AmmoType = strAmmoType
+			bullet.Force = 1
+			bullet.Callback = function( pPlayer, pTrace, dmgInfo)
+				sound.Play("weapons/ric"..math.random(1,5)..".wav",pTrace.HitPos,75, 100, 1)
+			end
 
 			vecSrc = tr.HitPos + (vecDir * penetrationPower)
 			flDistance = (flDistance - currentDistance) * distanceModifier

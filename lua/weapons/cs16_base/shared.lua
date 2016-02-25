@@ -50,6 +50,7 @@ SWEP.Secondary.Ammo         = "none"
 
 SWEP.IsCS16 = true
 SWEP.Sounds = {}
+SWEP.SoundsShield = {}
 SWEP.SoundSpeed = 0
 SWEP.SoundTime = 0
 SWEP.CurrentSoundTable = nil
@@ -89,8 +90,10 @@ function SWEP:SetupDataTables()
 	self:NetworkVar( "Float", 25, "m_flThrowTime" )
 	self:NetworkVar( "Bool", 26, "m_bPinPulled" )
 	self:NetworkVar( "Bool", 27, "m_bRedraw" )
+	self:NetworkVar( "Bool", 28, "m_bStartedArming")
+	self:NetworkVar( "Float", 29, "m_fArmedTime")
+	self:NetworkVar( "Bool", 30, "m_bBombPlacedAnimation")
 end
-
 
 function SWEP:Initialize()
 	self:SetHoldType( self.HoldType )
@@ -103,21 +106,66 @@ function SWEP:Initialize()
 	end
 end
 
-function SWEP:SecondaryAttack()
+if CLIENT then 
+	function SWEP:DrawWorldModel()
+		if IsValid( self.Owner ) and self.Owner:HasShield() and self.WorldModelShield then
+			if self:GetModel() != self.WorldModelShield then
+				self:SetModel( Model( self.WorldModelShield ) )
+			end
+		elseif IsValid( self.Owner ) and !self.Owner:HasShield() and self.WorldModel then
+			if self:GetModel() != self.WorldModel then
+				self:SetModel( self.WorldModel )
+			end
+		end
+		self:DrawModel()
+	end
+end
+
+function SWEP:ShieldSecondaryAttack()
+	if self.Owner:HasShield() then
+		if SERVER then  
+			self.Owner:SetShieldDrawnState( !self.Owner:IsShieldDrawn() )
+
+			if self.Owner:IsShieldDrawn() then
+				CS16_SendWeaponAnim( self, self.Anims.ShieldUp, 1, 0, 0, true )
+			else
+				CS16_SendWeaponAnim( self, self.Anims.ShieldDown, 1, 0, 0, true )
+			end
+		end
+
+		self.Owner:ResetMaxSpeed()
+		
+		self:SetNextPrimaryFire( CurTime() + 0.4 )
+		self:SetNextSecondaryFire( CurTime() + 0.4 )
+		return true
+	end
+
 	return false
 end
 
-function SWEP:CS16_DefaultReload( clipsize, anim, delay, idleDelay )
+function SWEP:SecondaryAttack()
+	if self:ShieldSecondaryAttack() then
+		return
+	end
+end
+
+function SWEP:CS16_DefaultReload( clipsize, anim, delay, idleDelay, customSoundID )
+	if self.Owner:IsShieldDrawn() then return false end
+	if CurTime() <= self:GetNextSecondaryFire() then return false end
+	if CurTime() <= self:GetNextPrimaryFire() then return false end
+	if self.Owner:KeyDown( IN_ATTACK ) or self.Owner:KeyDown( IN_ATTACK2 ) then return false end
 	if self.Owner:GetAmmoCount( self.Primary.Ammo ) <= 0 then 
 		return false
 	end
 	local j = math.min( clipsize - self:Clip1(), self.Owner:GetAmmoCount( self.Primary.Ammo ) )
 	if j == 0 then return false end
+
 	self:SetNextPrimaryFire( CurTime() + delay )
 	self:SetNextSecondaryFire( CurTime() + delay )
+	if SERVER then CS16_SendWeaponAnim( self, anim, 1, 0, 0, true, customSoundID ) end
+	self.Owner:SetAnimation( PLAYER_RELOAD )
+	print("SetAnimation")
 
-	CS16_SendWeaponAnim( self, anim, 1 )
-	
 	self:Setm_flTimeWeaponIdle( CurTime() + (idleDelay and idleDelay or 0.5) )
 	self:Setm_bInReload( true )
 
@@ -168,6 +216,9 @@ function SWEP:KickBack( up_base, lateral_base, up_modifier, lateral_modifier, up
 end
 
 function SWEP:Holster( weapon )
+	if self:Getm_bInReload() then 
+		self:Setm_bInReload( false )
+	end
 	return true
 end
 
@@ -181,15 +232,13 @@ function SWEP:Think()
 			self:SetResumeZoom( false )
 		end
 	end
-	if IsFirstTimePredicted() then
-		if self:GetClass() == CS16_WEAPON_GLOCK18 then
-			if self:Getm_flGlock18Shoot() != 0 then
-				self:FireRemaining( self:Getm_iGlock18ShotsFired(), self:Getm_flGlock18Shoot(), true )
-			end
-		elseif self:GetClass() == CS16_WEAPON_FAMAS then
-			if self:Getm_flFamasShoot() != 0 then
-				self:FireRemaining( self:Getm_iFamasShotsFired(), self:Getm_flFamasShoot(), true )
-			end
+	if self:GetClass() == CS16_WEAPON_GLOCK18 then
+		if self:Getm_flGlock18Shoot() != 0 then
+			self:FireRemaining( self:Getm_iGlock18ShotsFired(), self:Getm_flGlock18Shoot(), true )
+		end
+	elseif self:GetClass() == CS16_WEAPON_FAMAS then
+		if self:Getm_flFamasShoot() != 0 then
+			self:FireRemaining( self:Getm_iFamasShotsFired(), self:Getm_flFamasShoot(), true )
 		end
 	end
 	if self:Getm_bInReload() and self:GetNextPrimaryFire() <= CurTime() then
@@ -202,12 +251,14 @@ function SWEP:Think()
 
 		self:Setm_bInReload( false )
 	end
-	if SERVER then 
-		if self.EnableIdle and CurTime() > self:Getm_flTimeWeaponIdle() and !self:Getm_bInReload() then
-			self:WeaponIdle()
-		end
+	if self.EnableIdle and CurTime() > self:Getm_flTimeWeaponIdle() and !self:Getm_bInReload() and !self.IsC4 then
+		self:WeaponIdle()
+	end
+	if self.IsC4 then
+		self:WeaponIdle()
 	end
 	if !self.Owner:KeyDown( IN_ATTACK ) and !self.Owner:KeyDown( IN_ATTACK2 ) then
+
 		if self:Getm_bDelayFire() then
 			self:Setm_bDelayFire( false )
 
@@ -230,7 +281,7 @@ function SWEP:Think()
 			self:Setm_iShotsFired( 0 )
 		end
 
-		if self:Clip1() == 0 and self.Owner:GetAmmoCount( self.Primary.Ammo ) > 0 and !self:Getm_bInReload() and self:GetNextPrimaryFire() > CurTime() and CurTime() > self:Getm_flFamasShoot() then 
+		if self:Clip1() == 0 and self.Owner:GetAmmoCount( self.Primary.Ammo ) > 0 and !self:Getm_bInReload() and CurTime() > self:GetNextPrimaryFire() and CurTime() > self:Getm_flFamasShoot() then 
 			self:Reload()
 		end
 	end
@@ -243,7 +294,7 @@ function SWEP:Think()
 		self:Setm_flEjectBrass( 0 )
 	end
 	if IsFirstTimePredicted() then
-		if CLIENT then
+		if CLIENT and !self.ServersideSounds then
 			if self.CurrentSoundTable then
 				local tbl = self.CurrentSoundTable[self.CurrentSoundEntry]
 
@@ -259,20 +310,22 @@ function SWEP:Think()
 					end
 				end
 			end
-		else
-			if self.CurrentSoundTable then
-				local tbl = self.CurrentSoundTable[self.CurrentSoundEntry]
+		end
+	end
+	if SERVER and self.ServersideSounds then
 
-				if CurTime() >= self.SoundTime + tbl.time / self.SoundSpeed then
-					self:EmitSound( tbl.sound, 70, 100 )
+		if self.CurrentSoundTable then
+			local tbl = self.CurrentSoundTable[self.CurrentSoundEntry]
+
+			if CurTime() >= self.SoundTime + tbl.time / self.SoundSpeed then
+				self.Owner:EmitSound( tbl.sound, 70, 100 ) 
 					
-					if self.CurrentSoundTable[self.CurrentSoundEntry + 1] then
-						self.CurrentSoundEntry = self.CurrentSoundEntry + 1
-					else
-						self.CurrentSoundTable = nil
-						self.CurrentSoundEntry = nil
-						self.SoundTime = nil
-					end
+				if self.CurrentSoundTable[self.CurrentSoundEntry + 1] then
+					self.CurrentSoundEntry = self.CurrentSoundEntry + 1
+				else
+					self.CurrentSoundTable = nil
+					self.CurrentSoundEntry = nil
+					self.SoundTime = nil
 				end
 			end
 		end
@@ -287,4 +340,9 @@ function SWEP:Think()
 	elseif self:Getm_flThrowTime() > 0 and self:Getm_flThrowTime() < CurTime() then
 		if self.Throw then self:Throw() end
 	end
+end
+
+function SWEP:Holster()
+	self.Owner:SetShieldDrawnState( false )
+	return true
 end

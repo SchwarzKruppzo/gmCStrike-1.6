@@ -4,7 +4,7 @@ CL_BOB = 0.01
 
 local bob, bobcycle = 0, 0
 
-function CalcBob()
+function CalcBob( ply )
 	local bobtime = CurTime()
 
 	bobcycle = bobtime - math.floor( ( bobtime / CL_BOBCYCLE ) ) * CL_BOBCYCLE
@@ -16,7 +16,7 @@ function CalcBob()
 		bobcycle = math.pi + math.pi * ( bobcycle - CL_BOBUP )/ ( 1.0 - CL_BOBUP )
 	end
 	
-	local bobvel = LocalPlayer():GetVelocity()
+	local bobvel = ply:GetVelocity()
 	bobvel[3] = 0
  
 	local sqrt = math.Clamp( bobvel[1] * bobvel[1] + bobvel[2] * bobvel[2], -170000, 170000 )
@@ -38,7 +38,7 @@ function SWEP:PostDrawViewModel()
 	render.SetBlend( 1 )
 	viewmodel_new, viewmodel_old, eyepos, eyeang, frametime, curtime = self.viewmodel, self.Owner:GetViewModel(), EyePos(), EyeAngles(), FrameTime(), CurTime()
 
-	if self.ViewModelFlip then
+	if self.ViewModelFlip and !self.Owner:HasShield() then
 		render.CullMode( MATERIAL_CULLMODE_CW )
 		matrix = Matrix()
 		matrix:Scale( matrix_invert )
@@ -49,7 +49,7 @@ function SWEP:PostDrawViewModel()
 		viewmodel_new:EnableMatrix( "RenderMultiply", matrix )
 	end
 
-	local bob_int = CalcBob()
+	local bob_int = CalcBob( self.Owner )
 
 	eyeang[1] = eyeang[1] - self.Owner:CS16_GetViewPunch( true )[1]
 	eyeang[2] = eyeang[2] - self.Owner:CS16_GetViewPunch( true )[2]
@@ -61,7 +61,9 @@ function SWEP:PostDrawViewModel()
 	
 	if IsValid( viewmodel_new ) then
 		if self.FirstDeploy then
-			CS16_SendWeaponAnim( self, self.Anims.Draw, 1 )
+			local anim = self.Anims.Draw
+			anim = self.Owner:HasShield() and self.Anims.DrawShield or anim
+			CS16_SendWeaponAnim( self, anim, 1 )
 			self.FirstDeploy = false
 		end
 
@@ -71,14 +73,14 @@ function SWEP:PostDrawViewModel()
 
 		render.CullMode( MATERIAL_CULLMODE_CCW )
 		for k, v in pairs( osmes.GetEffects() ) do
-			if !v.DrawViewModel then continue end
-			if v.ThinkVM( v ) then
-				v.RenderVM( v )
+			if v.DrawWorldModel then continue end
+			if v.ThinkVM( osmes.GetEffects()[k] ) then
+				v.RenderVM( osmes.GetEffects()[k] )
 			else
 				osmes.GetEffects()[k] = nil
 			end
 		end
-		if self.ViewModelFlip then
+		if self.ViewModelFlip and !self.Owner:HasShield() then
 			render.CullMode( MATERIAL_CULLMODE_CW )
 		end
 
@@ -96,13 +98,17 @@ function SWEP:DrawWorldModel()
 	self:DrawModel() 
 end
 function SWEP:CalcView( ply, pos, ang, fov )
-	if !LocalPlayer():ShouldDrawLocalPlayer() then
-		local bob_int = CalcBob()
+	if !self.Owner:ShouldDrawLocalPlayer() then
+		if GAMEMODE.IsCStrike then
+			pos = self.Owner:GetShootPos()
+		end
+	
+		local bob_int = CalcBob( self.Owner )
 
 		pos[3] = pos[3] + bob_int
-		ang[1] = ang[1] + ply:CS16_GetViewPunch( true )[1]
-		ang[2] = ang[2] + ply:CS16_GetViewPunch( true )[2]
-		ang[3] = ang[3] + ply:CS16_GetViewPunch( true )[3]
+		ang[1] = ang[1] + self.Owner:CS16_GetViewPunch( true )[1]
+		ang[2] = ang[2] + self.Owner:CS16_GetViewPunch( true )[2]
+		ang[3] = ang[3] + self.Owner:CS16_GetViewPunch( true )[3]
 	end
 
 	if self:GetIsInScope() then
@@ -129,7 +135,7 @@ end
 
 local pos, dir
 function SWEP:GetTracerOrigin()
-	local pos = LocalPlayer():GetShootPos() + LocalPlayer():EyeAngles():Right() * 5 + LocalPlayer():EyeAngles():Up() * -4 + LocalPlayer():GetForward() * 15
+	local pos = self.Owner:GetShootPos() + self.Owner:EyeAngles():Right() * 5 + self.Owner:EyeAngles():Up() * -4 + self.Owner:GetForward() * 15
 	return pos
 end
 
@@ -137,8 +143,8 @@ hook.Add( "PostDrawOpaqueRenderables", "osmes.Effects", function()
 	cam.Start3D( EyePos(), EyeAngles() ) 
 	for k, v in pairs( osmes.GetEffects() ) do
 		if !v.DrawWorldModel then continue end
-		if v.ThinkWM( v ) then
-			v.RenderWM( v )
+		if v.ThinkWM(  osmes.GetEffects()[k] ) then
+			v.RenderWM( osmes.GetEffects()[k] )
 		else
 			osmes.GetEffects()[k] = nil
 		end
