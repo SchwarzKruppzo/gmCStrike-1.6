@@ -1,12 +1,4 @@
-STAMINA_MAX = 100.0
-STAMINA_COST_JUMP = 25.0
-STAMINA_COST_FALL = 20.0
-STAMINA_RECOVER_RATE = 19.0
-CS_WALK_SPEED = 100.0
-
 function ReduceTimers( ply )
-	if !ply:Getm_flStamina() then ply:Setm_flStamina( 0 ) end
-
 	local frame_msec = 1000.0 * FrameTime()
 
 	if ply:Getm_flStamina() > 0 then
@@ -44,16 +36,12 @@ function GM:OnPlayerHitGround( m_pClient, inWater, onFloater, speed )
 	end
 	return true
 end
-function CheckJump( ply, mv, velocity )
-	if !ply:Alive() then
-		local buttons = bit.bor( mv:GetOldButtons(), IN_JUMP )
-		mv:SetOldButtons( buttons )
-		return
-	end
+function CheckJump( ply, mv )
 	if ply:WaterLevel() >= 2 then 
 		return 
 	end
-	if ply:GetGroundEntity() == nil then
+	local worldspawn = SERVER and game.GetWorld() or Entity(0)
+	if !IsValid(ply:GetGroundEntity()) and ply:GetGroundEntity() != worldspawn then
 		local buttons = bit.bor( mv:GetOldButtons(), IN_JUMP )
 		mv:SetOldButtons( buttons )
 		return
@@ -62,13 +50,15 @@ function CheckJump( ply, mv, velocity )
 		return
 	end
 
+	local velocity = mv:GetVelocity()
+	velocity.z = math.sqrt(2 * 800 * 45)
+
 	if ply:Getm_flStamina() > 0 then
-		local flRatio = ( STAMINA_MAX - ( ( ply:Getm_flStamina()  / 1000.0 ) * STAMINA_RECOVER_RATE ) ) / STAMINA_MAX
-		velocity.z = velocity.z * flRatio
+		local velocity = mv:GetVelocity()
+		velocity.z = velocity.z * (100.0 - ply:Getm_flStamina() * 0.001 * 19.0) * 0.01;
 	end
-
-	ply:Setm_flStamina( ( STAMINA_COST_JUMP / STAMINA_RECOVER_RATE ) * 1000.0 )
-
+	mv:SetVelocity( velocity )
+	ply:Setm_flStamina( 1315.7894 )
 	return true
 end
 local speed = 0
@@ -83,6 +73,7 @@ function GM:StartCommand( ply, ucmd )
 	end
 end
 function GM:SetupMove( ply, mv, cmd )
+	--[[
 	ReduceTimers( ply )
 
 	if mv:KeyDown( IN_SPEED ) then
@@ -155,7 +146,56 @@ function GM:SetupMove( ply, mv, cmd )
 		
 	
 	mv:SetVelocity( velocity )
-	
+	]]
 	hook.Run( "CS16_PlayerUse", ply, mv )
 end
 
+function GM:Move( m_pClient, m_mvData )
+	if m_pClient:Alive() then
+		ReduceTimers( m_pClient )
+
+		if bit.band( m_pClient:GetFlags(), FL_FROZEN ) > 0 then
+			m_mvData:SetForwardSpeed( 0 )
+			m_mvData:SetSideSpeed( 0 )
+			m_mvData:SetUpSpeed( 0 )
+		end
+	
+		if m_mvData:KeyDown( IN_SPEED ) then
+			m_mvData:SetMaxClientSpeed( 100 )
+		end
+		if bit.band( m_pClient:GetFlags(), FL_DUCKING ) > 0 then
+			m_mvData:SetMaxClientSpeed( m_mvData:GetMaxClientSpeed() * 0.333 )
+		end
+
+		if bit.band( m_mvData:GetButtons(), IN_JUMP ) != 0 then
+			CheckJump( m_pClient, m_mvData )
+		else
+			local buttons = bit.band( m_mvData:GetOldButtons(), bit.bnot( IN_JUMP ) )
+			m_mvData:SetOldButtons( buttons )
+		end
+
+
+		local ground = m_pClient:GetGroundEntity()
+		local worldspawn = SERVER and game.GetWorld() or Entity(0) -- game.GetWorld doesn't work properly on client
+
+		if m_pClient:OnGround() then
+			if IsValid( ground ) or ground == worldspawn then
+				if m_pClient:Getm_flStopModifier() < 1.0 then
+					m_pClient:Setm_flStopModifier( m_pClient:Getm_flStopModifier() + FrameTime() / 3.0 )
+				elseif m_pClient:Getm_flStopModifier() > 1.0 then
+					m_pClient:Setm_flStopModifier( 1.0 )
+				end
+
+				if m_pClient:Getm_flStamina() > 0 then
+					local factor = (100.0 - m_pClient:Getm_flStamina() * 0.001 * 19.0) * 0.01
+					local velocity = m_mvData:GetVelocity()
+					velocity.x = velocity.x * factor
+					velocity.y = velocity.y * factor
+					m_mvData:SetVelocity( velocity )
+				end
+			end
+		end
+
+		m_mvData:SetMaxClientSpeed( m_mvData:GetMaxClientSpeed() * m_pClient:Getm_flStopModifier() )
+	end
+end

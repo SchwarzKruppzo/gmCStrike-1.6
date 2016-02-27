@@ -24,6 +24,7 @@ function PLAYER:SetupDataTables()
 	self.Player:NetworkVar( "Bool", 2, "InBombSite")
 	self.Player:NetworkVar( "Bool", 3, "m_bHasDefuser")
 	self.Player:NetworkVar( "Bool", 4, "m_bInBuyZone")
+	self.Player:NetworkVar( "Float", 6, "m_flVelocityModifier")
 	self.Player:SetNWBool( "m_bHasShield", false )
 	self.Player:SetNWBool( "m_bShieldDrawn", false )
 end

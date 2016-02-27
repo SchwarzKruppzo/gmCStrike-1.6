@@ -97,7 +97,7 @@ surface.CreateFont( "CSDeathnotice", {
 } )
 surface.CreateFont( "TestHUD", {
 	font = "System",
-	size = ScreenScaleZ( 24 ),
+	size = ScreenScaleZ( 20 ),
 	weight = 600,
 	blursize = 0,
 	scanlines = 0,

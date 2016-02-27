@@ -9,7 +9,7 @@ include( "animation.lua" )
 include( "damage.lua" )
 
 oldBloom = GetConVar( "mat_bloomscale" ):GetInt()
-RunConsoleCommand( "mat_bloomscale", 0.4 )
+RunConsoleCommand( "mat_bloomscale", 0 )
 
 DEFINE_BASECLASS( "gamemode_base" )
 
@@ -25,6 +25,18 @@ MAIN_SCHEMA.BG = Color( 0, 0, 0, 240 )
 MAIN_SCHEMA.COLOR = Color( 255, 176, 0 )
 MAIN_SCHEMA.COLOR_DARK = Color( 255, 176, 0, 100 )
 MAIN_SCHEMA.COLOR_DARK2 = Color( 255, 176, 0, 50 )
+
+local oldColor = {
+	["$pp_colour_addr" ] = 0.02,
+	["$pp_colour_addg" ] = 0.03,
+	["$pp_colour_addb" ] = 0.004,
+	["$pp_colour_brightness" ] = 0,
+	["$pp_colour_contrast" ] = 0.91,
+	["$pp_colour_colour" ] = 0.94,
+	["$pp_colour_mulr" ] = 0,
+	["$pp_colour_mulg" ] = 0.3,
+	["$pp_colour_mulb" ] = 0
+}
 
 // Language
 CStrike_Language = {}
@@ -258,7 +270,7 @@ function GM:HUDPaint()
 
 		surface.SetTextColor( Color( 255, 255, 255 ) )
 		surface.SetTextPos( 0, 0 )
-		surface.DrawText( "KEK VERSION" )
+		surface.DrawText( "ALPHA version" )
 	end
 
 	DrawHealthAndArmor()
@@ -275,6 +287,10 @@ function GM:Think()
 end
 function GM:ShutDown()
 	RunConsoleCommand( "mat_bloomscale", oldBloom )
+end
+function GM:RenderScreenspaceEffects()
+	render.ResetToneMappingScale( 1 )
+	DrawColorModify( oldColor )
 end
 
 // Usermessages
